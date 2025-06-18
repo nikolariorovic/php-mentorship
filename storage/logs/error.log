@@ -1,4 +1,0 @@
-[2025-06-18 22:58:46] Database error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'mentoring.users1' doesn't exist
-[2025-06-18 22:59:01] Database error1111111111111: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'mentoring.users1' doesn't exist
-[2025-06-18 22:59:16] Database error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'mentoring.users1' doesn't exist
-[2025-06-18 23:05:25] Uncaught exception: Array to string conversion

@@ -5,6 +5,7 @@
 /storage/*.key
 /storage/photos
 /storage/files
+/storage/logs
 /vendor
 /.idea
 /.vscode
