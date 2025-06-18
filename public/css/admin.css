@@ -1,0 +1,216 @@
+/* Alert Styles */
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.alert-danger {
+    background: #ff6b6b;
+    color: white;
+    border-left: 4px solid #d63031;
+}
+
+.alert-success {
+    background: #00b894;
+    color: white;
+    border-left: 4px solid #00a085;
+}
+
+.alert-warning {
+    background: #fdcb6e;
+    color: white;
+    border-left: 4px solid #e17055;
+}
+
+.alert-info {
+    background: #74b9ff;
+    color: white;
+    border-left: 4px solid #0984e3;
+}
+
+/* Dashboard Content */
+.dashboard-content {
+    margin-top: 100px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.dashboard-card {
+    background: rgba(255,255,255,0.97);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+    padding: 2.5rem 3rem;
+    min-width: 350px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.dashboard-card h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.8rem;
+}
+
+/* Table Styles */
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.users-table th,
+.users-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.users-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.users-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.users-table .role-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.role-admin {
+    background-color: #dc3545;
+    color: white;
+}
+
+.role-mentor {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.role-student {
+    background-color: #198754;
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.edit-button {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-button:hover {
+    opacity: 0.9;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1024px) {
+    .dashboard-card {
+        padding: 2rem;
+        margin: 0 10px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .dashboard-content {
+        margin-top: 80px;
+        padding: 10px;
+    }
+    
+    .dashboard-card {
+        padding: 1.5rem;
+        min-width: auto;
+    }
+    
+    .dashboard-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .users-table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.9rem;
+    }
+
+    .users-table th,
+    .users-table td {
+        padding: 8px 10px;
+        min-width: 100px;
+    }
+    
+    .users-table th:last-child,
+    .users-table td:last-child {
+        min-width: 120px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .action-button {
+        padding: 4px 8px;
+        font-size: 0.8em;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .dashboard-content {
+        margin-top: 70px;
+        padding: 5px;
+    }
+    
+    .dashboard-card {
+        padding: 1rem;
+    }
+    
+    .dashboard-card h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .users-table {
+        font-size: 0.8rem;
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 6px 8px;
+    }
+    
+    .role-badge {
+        font-size: 0.75em;
+        padding: 2px 6px;
+    }
+} 
