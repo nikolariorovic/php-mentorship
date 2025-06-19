@@ -6,15 +6,20 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../../public/css/login.css">
     <link rel="stylesheet" href="../../public/css/admin.css">
+    <link rel="stylesheet" href="../../public/css/admin-navigation.css">
 </head>
 <body>
-    <div class="header">
-        <div class="header-title">Admin Dashboard</div>
-        <a href="/logout" class="logout-button">Logout</a>
-    </div>
+    <?php include __DIR__ . '/navigation.php'; ?>
+    
     <div class="dashboard-content">
         <div class="dashboard-card">
-            <h2>Users Management</h2>
+            <div class="card-header">
+                <h2>Users Management</h2>
+                <button class="btn btn-primary" onclick="openCreateUserModal()">
+                    <i class="btn-icon">➕</i>
+                    Add New User
+                </button>
+            </div>
             
             <?php if (!empty($_SESSION['error'])): ?>
                 <div class="alert alert-danger">
@@ -78,6 +83,58 @@
         </div>
     </div>
 
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New User</h3>
+                <span class="modal-close" onclick="closeCreateUserModal()">&times;</span>
+            </div>
+            <form id="createUserForm" action="/admin/users" method="POST">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="first_name">First Name *</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name *</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role *</label>
+                        <select id="role" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="student">Student</option>
+                            <option value="mentor">Mentor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="pricePerSessionGroup" style="display: none;">
+                        <label for="price_per_session">Price per Session *</label>
+                        <input type="number" id="price_per_session" name="price" min="0" step="0.01" placeholder="Enter price per session">
+                    </div>
+                    <div class="form-group">
+                        <label for="biography">Biography</label>
+                        <textarea id="biography" name="biography" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateUserModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../../public/js/admin.js"></script>
+    <script src="../../public/js/admin-navigation.js"></script>
 </body>
 </html>

@@ -2,22 +2,11 @@
 namespace App\Repositories;
 
 use App\Models\User;
-use App\Models\Admin;
-use App\Models\Mentor;
-use App\Models\Student;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Exceptions\UserNotFoundException;
+use App\Factories\UserFactory;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface {
-
-    private function createUserFromData(array $data): User {
-        return match($data['role']) {
-            'admin' => new Admin($data),
-            'mentor' => new Mentor($data),
-            'student' => new Student($data),
-            default => throw new \InvalidArgumentException('Invalid user role')
-        };
-    }
 
     public function findByEmail(string $email): ?User {
         try {
@@ -27,7 +16,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface {
         }
 
         if (!$user) throw new UserNotFoundException();
-        return $this->createUserFromData($user);   
+        return UserFactory::create($user);
     }
 
     public function getAllUsers($page): array {
@@ -36,6 +25,23 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface {
         } catch (\PDOException $e) {
             $this->handleDatabaseError($e);
         } 
-        return array_map([$this, 'createUserFromData'], $users);
+        return array_map(fn($userData) => UserFactory::create($userData), $users);
+    }
+
+    public function createUser(User $user): void {
+        try {
+            $this->execute('INSERT INTO users (first_name, last_name, email, password, biography, price, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
+                $user->getFirstName(),
+                $user->getLastName(),
+                $user->getEmail(),
+                $user->getPassword(),
+                $user->getBiography(),
+                $user->getPrice() ?? 0.00,
+                $user->getRole(),
+                date('Y-m-d H:i:s')
+            ]);
+        } catch (\PDOException $e) {
+            $this->handleDatabaseError($e);
+        }
     }
 }

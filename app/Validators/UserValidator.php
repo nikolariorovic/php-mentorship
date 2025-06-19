@@ -13,7 +13,7 @@ class UserValidator
         $this->validateFirstName($data['first_name'] ?? '');
         $this->validateLastName($data['last_name'] ?? '');
         $this->validateEmail($data['email'] ?? '');
-        // $this->validatePassword($data['password'] ?? '');
+        $this->validatePassword($data['password'] ?? '');
         $this->validateRole($data['role'] ?? '');
         $this->validateBiography($data['biography'] ?? '');
 
@@ -55,20 +55,20 @@ class UserValidator
         }
     }
 
-    // private function validatePassword(string $password): void
-    // {
-    //     if (empty($password)) {
-    //         $this->errors['password'] = 'Password is required';
-    //     } elseif (strlen($password) < 8) {
-    //         $this->errors['password'] = 'Password must be at least 8 characters long';
-    //     } elseif (!preg_match('/[A-Z]/', $password)) {
-    //         $this->errors['password'] = 'Password must contain at least one uppercase letter';
-    //     } elseif (!preg_match('/[a-z]/', $password)) {
-    //         $this->errors['password'] = 'Password must contain at least one lowercase letter';
-    //     } elseif (!preg_match('/[0-9]/', $password)) {
-    //         $this->errors['password'] = 'Password must contain at least one number';
-    //     }
-    // }
+    private function validatePassword(string $password): void
+    {
+        if (empty($password)) {
+            $this->errors['password'] = 'Password is required';
+        } elseif (strlen($password) < 4) {
+            $this->errors['password'] = 'Password must be at least 8 characters long';
+        } elseif (!preg_match('/[A-Z]/', $password)) {
+            $this->errors['password'] = 'Password must contain at least one uppercase letter';
+        } elseif (!preg_match('/[a-z]/', $password)) {
+            $this->errors['password'] = 'Password must contain at least one lowercase letter';
+        } elseif (!preg_match('/[0-9]/', $password)) {
+            $this->errors['password'] = 'Password must contain at least one number';
+        }
+    }
 
     private function validateRole(string $role): void
     {
@@ -82,8 +82,15 @@ class UserValidator
 
     private function validateBiography(?string $biography): void
     {
-        if ($biography !== null && strlen($biography) > 10) {
-            $this->errors['biography'] = 'Biography must not exceed 10 characters';
+        if ($biography !== null && strlen($biography) < 10) {
+            $this->errors['biography'] = 'Biography must be at least 10 characters long';
+        }
+    }
+
+    private function validatePrice(?float $price): void
+    {
+        if ($price !== null && $price < 0) {
+            $this->errors['price'] = 'Price must be greater than 0';
         }
     }
 } 

@@ -7,15 +7,18 @@ use App\Services\UserService;
 use App\Repositories\UserRepository;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\InvalidUserDataException;
+use App\Services\Interfaces\UserWriteServiceInterface;
 
 class AdminController extends Controller
 {
     private UserReadServiceInterface $userReadService;
+    private UserWriteServiceInterface $userWriteService;
 
     public function __construct()
     {
         $userService = new UserService(new UserRepository());
         $this->userReadService = $userService;
+        $this->userWriteService = $userService;
     }
 
     public function index()
@@ -36,6 +39,24 @@ class AdminController extends Controller
         } catch (\Throwable $e) {
             $_SESSION['error'] = 'Error. Something went wrong';
             return $this->view('admin/index');
+        }
+    }
+
+    public function create()
+    { 
+        try {
+            $this->userWriteService->createUser($_POST);
+            $_SESSION['success'] = 'User created successfully';
+            return $this->redirect('/admin/users');
+        } catch (DatabaseException $e) {
+            $_SESSION['error'] = 'Something went wrong';
+            return $this->redirect('/admin/users');
+        } catch (InvalidUserDataException $e) {
+            $_SESSION['error'] = 'Validation error. Errors: ' . implode(', ', $e->getErrors());
+            return $this->redirect('/admin/users');
+        } catch (\Throwable $e) {
+            $_SESSION['error'] = 'Error. Something went wrong';
+            return $this->redirect('/admin/users');
         }
     }
 }

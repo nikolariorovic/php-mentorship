@@ -16,22 +16,18 @@ abstract class User
     protected string $password = '';
     protected string $biography = '';
     protected string $role = 'student';
+    protected ?float $price = null;
     protected DateTime $created_at;
     protected DateTime $updated_at;
 
-    // Constructor for creating new user
     public function __construct(array $data = [])
     {
         if (!empty($data)) {
-            $validator = new UserValidator();
-            $validator->validate($data);
-
             $this->id = $data['id'] ?? null;
             $this->setFirstName($data['first_name'] ?? '');
             $this->setLastName($data['last_name'] ?? '');
             $this->setEmail($data['email'] ?? '');
             $this->setBiography($data['biography'] ?? '');
-            $this->setRole($data['role'] ?? 'student');
             $this->created_at = isset($data['created_at']) 
                 ? new DateTime($data['created_at']) 
                 : new DateTime();
@@ -39,14 +35,12 @@ abstract class User
                 ? new DateTime($data['updated_at']) 
                 : new DateTime();
             
-            // Password should be set separately using setPassword
             if (isset($data['password'])) {
                 $this->setPassword($data['password']);
             }
         }
     }
     
-    // Getters
     public function getId(): int 
     {
         return $this->id;
@@ -65,6 +59,11 @@ abstract class User
     public function getEmail(): string 
     {
         return $this->email;
+    }
+
+    public function getPassword(): string 
+    {
+        return $this->password;
     }
 
     public function getBiography(): string 
@@ -92,7 +91,11 @@ abstract class User
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    // Setters with validation
+    public function getPrice(): ?float 
+    {
+        return $this->price;
+    }
+
     public function setFirstName(string $firstName): void 
     {
         if (empty($firstName)) {
@@ -136,7 +139,14 @@ abstract class User
         $this->role = $role;
     }
 
-    // Business logic methods
+    public function setPrice(?float $price): void 
+    {
+        if ($price !== null && $price < 0) {
+            throw new InvalidArgumentException('Price cannot be negative');
+        }
+        $this->price = $price;
+    }
+
     public function verifyPassword(string $password): bool 
     {
         return $password === $this->password;
@@ -157,6 +167,16 @@ abstract class User
         return $this->role === 'student';
     }
 
+    public static function create(array $data): User
+    {
+        return match($data['role']) {
+            'admin' => new Admin($data),
+            'mentor' => new Mentor($data),
+            'student' => new Student($data),
+            default => throw new \InvalidArgumentException('Invalid user role')
+        };
+    }
+
     public function toArray(): array 
     {
         return [
@@ -166,6 +186,7 @@ abstract class User
             'email' => $this->email,
             'biography' => $this->biography,
             'role' => $this->role,
+            'price' => $this->price,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s')
         ];
