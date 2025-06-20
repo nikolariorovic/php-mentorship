@@ -3,5 +3,5 @@ namespace App\Services\Interfaces;
 
 interface UserReadServiceInterface
 {
-    public function getPaginatedUsers($page): array;
+    public function getPaginatedUsers(int $page): array;
 }

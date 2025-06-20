@@ -19,7 +19,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface {
         return UserFactory::create($user);
     }
 
-    public function getAllUsers($page): array {
+    public function getAllUsers(int $page): array {
         try {
             $users = $this->query('SELECT * FROM users LIMIT 10 OFFSET ?', [($page - 1) * 10]);
         } catch (\PDOException $e) {

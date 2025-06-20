@@ -14,26 +14,38 @@ class BaseRepository {
     }
 
     protected function query(string $sql, array $params = []): array {
-        $stmt = $this->db->prepare($sql);
-        foreach ($params as $index => $value) {
-            $stmt->bindValue($index + 1, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
-        }
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $index => $value) {
+                $stmt->bindValue($index + 1, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->handleDatabaseError($e);
+        }  
     }
 
     protected function execute(string $sql, array $params = []): bool {
-        $stmt = $this->db->prepare($sql);
-        foreach ($params as $index => $value) {
-            $stmt->bindValue($index + 1, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+        try {
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $index => $value) {
+                $stmt->bindValue($index + 1, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+            }
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            $this->handleDatabaseError($e);
         }
-        return $stmt->execute();
     }
 
     protected function queryOne(string $sql, array $params = []): ?array {
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        } catch (PDOException $e) {
+            $this->handleDatabaseError($e);
+        }
     }
 
     protected function handleDatabaseError(PDOException $e): void {

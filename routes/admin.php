@@ -1,6 +1,6 @@
 <?php
 
-use App\Controllers\Admin\AdminController;
+use App\Controllers\Admin\UserAdminController;
 
-$router->get('/users', [AdminController::class, 'index']);
-$router->post('/users', [AdminController::class, 'create']);
+$router->get('/users', [UserAdminController::class, 'index']);
+$router->post('/users', [UserAdminController::class, 'create']);

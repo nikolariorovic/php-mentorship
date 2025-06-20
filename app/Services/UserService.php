@@ -5,22 +5,21 @@ namespace App\Services;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\UserReadServiceInterface;
 use App\Services\Interfaces\UserWriteServiceInterface;
-use App\Validators\UserValidator;
-use App\Exceptions\InvalidUserDataException;
 use App\Factories\UserFactory;
+use App\Validators\Interfaces\ValidatorInterface;
 
 class UserService implements UserReadServiceInterface, UserWriteServiceInterface
 {
     private UserRepositoryInterface $userRepository;
-    private UserValidator $userValidator;
+    private ValidatorInterface $userValidator;
 
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(UserRepositoryInterface $userRepository, ValidatorInterface $userValidator)
     {
         $this->userRepository = $userRepository;
-        $this->userValidator = new UserValidator();
+        $this->userValidator = $userValidator;
     }
 
-    public function getPaginatedUsers($page): array
+    public function getPaginatedUsers(int $page): array
     {
         return $this->userRepository->getAllUsers($page);
     }

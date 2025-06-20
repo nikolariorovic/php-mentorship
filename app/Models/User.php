@@ -1,11 +1,8 @@
 <?php
 namespace App\Models;
 
-use Database\Database;
-use PDO;
 use DateTime;
 use InvalidArgumentException;
-use App\Validators\UserValidator;
 
 abstract class User
 {
@@ -150,31 +147,6 @@ abstract class User
     public function verifyPassword(string $password): bool 
     {
         return $password === $this->password;
-    }
-
-    public function isAdmin(): bool 
-    {
-        return $this->role === 'admin';
-    }
-
-    public function isMentor(): bool 
-    {
-        return $this->role === 'mentor';
-    }
-
-    public function isStudent(): bool 
-    {
-        return $this->role === 'student';
-    }
-
-    public static function create(array $data): User
-    {
-        return match($data['role']) {
-            'admin' => new Admin($data),
-            'mentor' => new Mentor($data),
-            'student' => new Student($data),
-            default => throw new \InvalidArgumentException('Invalid user role')
-        };
     }
 
     public function toArray(): array 
