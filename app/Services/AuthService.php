@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\AuthServiceInterface;
+use App\Exceptions\UserNotFoundException;
 
 class AuthService implements AuthServiceInterface
 {
@@ -20,7 +21,7 @@ class AuthService implements AuthServiceInterface
         if ($user && $user->verifyPassword($password)) {
             return $user;
         }
-        return null;
+        throw new UserNotFoundException();
     }
 
     public function login(User $user): void

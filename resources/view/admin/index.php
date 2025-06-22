@@ -61,12 +61,15 @@
                             <td><?php echo htmlspecialchars($user->getCreatedAt()->format('Y-m-d H:i')); ?></td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="action-button edit-button" onclick="editUser(<?php echo $user->getId(); ?>)">
+                                    <a href="/admin/users/<?php echo $user->getId(); ?>" class="action-button edit-button">
                                         Edit
-                                    </button>
-                                    <button class="action-button delete-button" onclick="deleteUser(<?php echo $user->getId(); ?>)">
-                                        Delete
-                                    </button>
+                                    </a>
+                                    <form action="/admin/users/<?php echo $user->getId(); ?>" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="action-button delete-button">
+                                            Delete
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

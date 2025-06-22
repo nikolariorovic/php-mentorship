@@ -17,13 +17,13 @@ function logError($message) {
 }
 
 use App\Core\Router;
-use App\Middleware\AdminMiddleware;
+use App\Middleware\AdminPanelMiddleware;
 
 $router = new Router();
 
 require_once __DIR__ . '/routes/web.php';
 
-$router->group(['prefix' => '/admin', 'middleware' => [AdminMiddleware::class]], function($router) {
+$router->group(['prefix' => '/admin', 'middleware' => [AdminPanelMiddleware::class]], function($router) {
     require __DIR__ . '/routes/admin.php';
 });
 

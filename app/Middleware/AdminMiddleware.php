@@ -5,10 +5,9 @@ class AdminMiddleware
 {
     public function handle()
     {
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'mentor') {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             header('Location: /');
             return false;
         }
-        return true;
     }
-} 
+}

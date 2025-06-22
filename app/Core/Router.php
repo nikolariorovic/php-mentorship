@@ -19,11 +19,21 @@ class Router
         $this->addRoute('POST', $uri, $handler, $middleware);
     }
 
+    public function patch(string $uri, $handler, $middleware = [])
+    {
+        $this->addRoute('PATCH', $uri, $handler, $middleware);
+    }
+
+    public function delete(string $uri, $handler, $middleware = [])
+    {
+        $this->addRoute('DELETE', $uri, $handler, $middleware);
+    }
+
     private function addRoute(string $method, string $uri, $handler, $middleware = [])
     {
         $middleware = array_merge($this->currentGroupMiddleware, $middleware);
         $uri = $this->currentGroupPrefix . $uri;
-        // Normalizuj rutu: ukloni zadnju kosu crtu osim za root
+
         if ($uri !== '/' && substr($uri, -1) === '/') {
             $uri = rtrim($uri, '/');
         }
@@ -57,12 +67,19 @@ class Router
     public function dispatch()
     {
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        // Normalizuj: ukloni zadnju kosu crtu osim za root
         if ($requestUri !== '/' && substr($requestUri, -1) === '/') {
             $requestUri = rtrim($requestUri, '/');
         }
 
         $requestMethod = $_SERVER['REQUEST_METHOD'];
+
+        if ($requestMethod === 'POST' && isset($_POST['_method'])) {
+            $allowedMethods = ['PUT', 'PATCH', 'DELETE'];
+            $methodFromForm = strtoupper($_POST['_method']);
+            if (in_array($methodFromForm, $allowedMethods, true)) {
+                $requestMethod = $methodFromForm;
+            }
+        }
 
         foreach ($this->routes as $route) {
             $pattern = preg_replace('#\{[a-zA-Z_][a-zA-Z0-9_]*\}#', '([a-zA-Z0-9_-]+)', $route['uri']);
@@ -88,7 +105,6 @@ class Router
             }
         }
 
-        // 404 handler
         if ($this->notFoundHandler) {
             call_user_func($this->notFoundHandler);
         } else {

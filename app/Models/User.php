@@ -16,6 +16,7 @@ abstract class User
     protected ?float $price = null;
     protected DateTime $created_at;
     protected DateTime $updated_at;
+    protected ?DateTime $deleted_at = null;
 
     public function __construct(array $data = [])
     {
@@ -31,6 +32,9 @@ abstract class User
             $this->updated_at = isset($data['updated_at']) 
                 ? new DateTime($data['updated_at']) 
                 : new DateTime();
+            $this->deleted_at = isset($data['deleted_at']) 
+                ? new DateTime($data['deleted_at']) 
+                : null;
             
             if (isset($data['password'])) {
                 $this->setPassword($data['password']);
@@ -81,6 +85,11 @@ abstract class User
     public function getUpdatedAt(): DateTime 
     {
         return $this->updated_at;
+    }
+
+    public function getDeletedAt(): DateTime 
+    {
+        return $this->deleted_at;
     }
 
     public function getFullName(): string 

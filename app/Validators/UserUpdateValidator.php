@@ -2,7 +2,7 @@
 
 namespace App\Validators;
 
-class UserValidator extends BaseValidator
+class UserUpdateValidator extends BaseValidator
 {
     protected function setRules(): void
     {
@@ -27,30 +27,6 @@ class UserValidator extends BaseValidator
                     'max_length' => 'Last name must not exceed 50 characters'
                 ]
             ],
-            'email' => [
-                'required' => true,
-                'email' => true,
-                'messages' => [
-                    'required' => 'Email is required',
-                    'email' => 'Invalid email format'
-                ]
-            ],
-            'password' => [
-                'required' => true,
-                'min_length' => 4,
-                'pattern' => [
-                    'uppercase' => '/[A-Z]/',
-                    'lowercase' => '/[a-z]/',
-                    'number' => '/[0-9]/'
-                ],
-                'messages' => [
-                    'required' => 'Password is required',
-                    'min_length' => 'Password must be at least 4 characters long',
-                    'uppercase' => 'Password must contain at least one uppercase letter',
-                    'lowercase' => 'Password must contain at least one lowercase letter',
-                    'number' => 'Password must contain at least one number'
-                ]
-            ],
             'role' => [
                 'required' => true,
                 'in' => ['admin', 'mentor', 'student'],
@@ -60,7 +36,7 @@ class UserValidator extends BaseValidator
                 ]
             ],
             'biography' => [
-                'required' => false,
+                'required' => true,
                 'min_length' => 10,
                 'messages' => [
                     'min_length' => 'Biography must be at least 10 characters long'

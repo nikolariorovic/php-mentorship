@@ -118,6 +118,8 @@
     cursor: pointer;
     font-size: 0.9em;
     transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .edit-button {
@@ -132,6 +134,8 @@
 
 .action-button:hover {
     opacity: 0.9;
+    color: white;
+    text-decoration: none;
 }
 
 /* Responsive Design */
@@ -422,5 +426,281 @@
     
     .btn {
         width: 100%;
+    }
+}
+
+/* User Details Page Styles */
+.user-details-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.user-profile-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.user-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: white;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-basic-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.user-basic-info .role-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.detail-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.detail-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-section h4 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #0d6efd;
+    padding-bottom: 0.5rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item label {
+    font-weight: 500;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.detail-item span {
+    color: #333;
+    font-weight: 500;
+}
+
+.detail-item a.email-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.detail-item a.email-link::before {
+    content: '📧';
+    font-size: 1.1em;
+}
+
+.detail-item a.email-link:hover {
+    color: #0b5ed7;
+    text-decoration: underline;
+}
+
+.detail-item .role-badge {
+    background-color: transparent;
+    border: 2px solid;
+    padding: 3px 12px;
+    font-weight: 600;
+    font-size: 0.85em;
+    border-radius: 20px;
+}
+
+.detail-item .role-mentor {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.detail-item .role-admin {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.detail-item .role-student {
+    color: #198754;
+    border-color: #198754;
+}
+
+.detail-item span.date-value {
+    text-align: right;
+    line-height: 1.4;
+}
+
+.detail-item span.date-value small {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.detail-item .price {
+    color: #198754;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.biography-content {
+    background: white;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    line-height: 1.6;
+    color: #333;
+}
+
+.user-actions {
+    padding: 2rem;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* Responsive Design for User Details */
+@media screen and (max-width: 768px) {
+    .user-profile-section {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .user-details-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .detail-section {
+        padding: 1rem;
+    }
+    
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .user-actions {
+        padding: 1rem;
+        flex-direction: column;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .user-profile-section {
+        padding: 1rem;
+    }
+    
+    .avatar-placeholder {
+        width: 60px;
+        height: 60px;
+        font-size: 1.4rem;
+    }
+    
+    .user-basic-info h3 {
+        font-size: 1.4rem;
+    }
+    
+    .user-details-grid {
+        padding: 0.5rem;
+    }
+    
+    .detail-section {
+        padding: 0.75rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 1rem;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .modal-content {
+        width: 98%;
+        margin: 5% auto;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 0.75rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
     }
 } 
