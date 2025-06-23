@@ -13,6 +13,8 @@ function closeCreateUserModal() {
     document.getElementById('createUserForm').reset();
     // Hide price field
     document.getElementById('pricePerSessionGroup').style.display = 'none';
+    // Hide specializations field
+    document.getElementById('specializationsGroup').style.display = 'none';
 }
 
 // Edit Modal Functions
@@ -28,10 +30,15 @@ function closeEditUserModal() {
     document.getElementById('editUserForm').reset();
     // Hide price field
     document.getElementById('editPricePerSessionGroup').style.display = 'none';
+    // Hide specializations field
+    const editSpecializationsGroup = document.getElementById('editSpecializationsGroup');
+    if (editSpecializationsGroup) {
+        editSpecializationsGroup.style.display = 'none';
+    }
 }
 
 // Edit user function
-function editUser(userId, firstName, lastName, email, role, biography, price) {
+function editUser(userId, firstName, lastName, email, role, biography, price, specializations = []) {
     // Populate the edit form with user data
     document.getElementById('edit_first_name').value = firstName;
     document.getElementById('edit_last_name').value = lastName;
@@ -53,8 +60,53 @@ function editUser(userId, firstName, lastName, email, role, biography, price) {
         editPriceInput.value = '';
     }
     
+    // Handle specializations field visibility for mentor role
+    const editSpecializationsGroup = document.getElementById('editSpecializationsGroup');
+    const editSpecializationsSelect = document.getElementById('edit_specializations');
+    if (editSpecializationsGroup) {
+        if (role === 'mentor') {
+            editSpecializationsGroup.style.display = 'block';
+            // Set selected specializations
+            if (editSpecializationsSelect && specializations.length > 0) {
+                Array.from(editSpecializationsSelect.options).forEach(option => {
+                    option.selected = specializations.includes(parseInt(option.value));
+                });
+            }
+        } else {
+            editSpecializationsGroup.style.display = 'none';
+            // Clear selections
+            if (editSpecializationsSelect) {
+                Array.from(editSpecializationsSelect.options).forEach(option => {
+                    option.selected = false;
+                });
+            }
+        }
+    }
+    
     // Open the edit modal
     openEditUserModal();
+}
+
+// Edit user from data attributes
+function editUserFromData(button) {
+    const userId = parseInt(button.getAttribute('data-user-id'));
+    const firstName = button.getAttribute('data-first-name');
+    const lastName = button.getAttribute('data-last-name');
+    const email = button.getAttribute('data-email');
+    const role = button.getAttribute('data-role');
+    const biography = button.getAttribute('data-biography');
+    const price = button.getAttribute('data-price');
+    const specializationsJson = button.getAttribute('data-specializations');
+    
+    let specializations = [];
+    try {
+        specializations = JSON.parse(specializationsJson);
+    } catch (e) {
+        console.error('Error parsing specializations:', e);
+        specializations = [];
+    }
+    
+    editUser(userId, firstName, lastName, email, role, biography, price, specializations);
 }
 
 // Close modal when clicking outside
@@ -89,6 +141,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const editPriceGroup = document.getElementById('editPricePerSessionGroup');
     const priceInput = document.getElementById('price_per_session');
     const editPriceInput = document.getElementById('edit_price_per_session');
+    const specializationsGroup = document.getElementById('specializationsGroup');
+    const editSpecializationsGroup = document.getElementById('editSpecializationsGroup');
 
     // Handle role changes for create form
     if (roleSelect) {
@@ -96,10 +150,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.value === 'mentor') {
                 priceGroup.style.display = 'block';
                 priceInput.required = true;
+                specializationsGroup.style.display = 'block';
             } else {
                 priceGroup.style.display = 'none';
                 priceInput.required = false;
                 priceInput.value = ''; // Clear the price when role is not mentor
+                specializationsGroup.style.display = 'none';
             }
         });
     }
@@ -110,10 +166,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.value === 'mentor') {
                 editPriceGroup.style.display = 'block';
                 editPriceInput.required = true;
+                if (editSpecializationsGroup) {
+                    editSpecializationsGroup.style.display = 'block';
+                }
             } else {
                 editPriceGroup.style.display = 'none';
                 editPriceInput.required = false;
                 editPriceInput.value = ''; // Clear the price when role is not mentor
+                if (editSpecializationsGroup) {
+                    editSpecializationsGroup.style.display = 'none';
+                }
             }
         });
     }

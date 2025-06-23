@@ -77,17 +77,17 @@ abstract class User
         return $this->role;
     }
 
-    public function getCreatedAt(): DateTime 
+    public function getCreatedAt(): ?DateTime 
     {
         return $this->created_at;
     }
 
-    public function getUpdatedAt(): DateTime 
+    public function getUpdatedAt(): ?DateTime 
     {
         return $this->updated_at;
     }
 
-    public function getDeletedAt(): DateTime 
+    public function getDeletedAt(): ?DateTime 
     {
         return $this->deleted_at;
     }

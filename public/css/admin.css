@@ -375,13 +375,44 @@
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
 }
 
 .form-group textarea {
     resize: vertical;
     min-height: 80px;
+}
+
+/* Multi-select styles */
+.form-group select[multiple] {
+    min-height: 120px;
+    padding: 8px;
+}
+
+.form-group select[multiple] option {
+    padding: 8px 12px;
+    margin: 2px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.form-group select[multiple] option:hover {
+    background-color: #e9ecef;
+}
+
+.form-group select[multiple] option:checked {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.form-help {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-style: italic;
 }
 
 /* Responsive Modal */
@@ -590,15 +621,41 @@
 }
 
 .biography-content {
-    background: white;
+    background-color: #f8f9fa;
     padding: 1rem;
     border-radius: 6px;
-    border: 1px solid #e9ecef;
+    font-size: 0.95rem;
     line-height: 1.6;
-    color: #333;
+    color: #495057;
+}
+
+/* Specializations Section */
+.specializations-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.specialization-badge {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease;
+}
+
+.specialization-badge:hover {
+    background-color: #dee2e6;
+    border-color: #adb5bd;
 }
 
 .user-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
     padding: 2rem;
     border-top: 1px solid #e9ecef;
     display: flex;

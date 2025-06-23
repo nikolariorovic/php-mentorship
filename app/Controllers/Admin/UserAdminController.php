@@ -11,17 +11,22 @@ use App\Services\Interfaces\UserWriteServiceInterface;
 use App\Validators\UserCreateValidator;
 use App\Validators\UserUpdateValidator;
 use App\Exceptions\UserNotFoundException;
+use App\Services\Interfaces\SpecializationServiceInterface;
+use App\Services\SpecializationService;
+use App\Repositories\SpecializationRepository;
 
 class UserAdminController extends Controller
 {
     private UserReadServiceInterface $userReadService;
     private UserWriteServiceInterface $userWriteService;
+    private SpecializationServiceInterface $specializationService;
 
     public function __construct()
     {
         $userService = new UserService(new UserRepository(), new UserCreateValidator(), new UserUpdateValidator());
         $this->userReadService = $userService;
         $this->userWriteService = $userService;
+        $this->specializationService = new SpecializationService(new SpecializationRepository());
     }
 
     public function index()
@@ -32,17 +37,16 @@ class UserAdminController extends Controller
       
         try {
             $users = $this->userReadService->getPaginatedUsers($page);
-            return $this->view('admin/index', ['users' => $users]);
+            $specializations = $this->specializationService->getAllSpecializations();
+            return $this->view('admin/index', ['users' => $users, 'specializations' => $specializations]);
         } catch (DatabaseException $e) {
-            $_SESSION['error'] = 'Something went wrong';
-            logError($e->getMessage());
+            $this->handleException($e, 'Something went wrong');
             return $this->view('admin/index');
         } catch (InvalidUserDataException $e) {
-            $_SESSION['error'] = 'Validation error. Errors: ' . implode(', ', $e->getErrors());
+            $this->handleException($e, 'Validation error. Errors: ' . implode(', ', $e->getErrors()));
             return $this->view('admin/index');
         } catch (\Throwable $e) {
-            $_SESSION['error'] = 'Error. Something went wrong';
-            logError($e->getMessage());
+            $this->handleException($e, 'Error. Something went wrong');
             return $this->view('admin/index');
         }
     }
@@ -54,15 +58,13 @@ class UserAdminController extends Controller
             $_SESSION['success'] = 'User created successfully';
             return $this->redirect('/admin/users');
         } catch (DatabaseException $e) {
-            $_SESSION['error'] = 'Something went wrong';
-            logError($e->getMessage());
+            $this->handleException($e, 'Something went wrong');
             return $this->redirect('/admin/users');
         } catch (InvalidUserDataException $e) {
-            $_SESSION['error'] = 'Validation error. Errors: ' . implode(', ', $e->getErrors());
+            $this->handleException($e, 'Validation error. Errors: ' . implode(', ', $e->getErrors()));
             return $this->redirect('/admin/users');
         } catch (\Throwable $e) {
-            $_SESSION['error'] = 'Error. Something went wrong';
-            logError($e->getMessage());
+            $this->handleException($e, 'Error. Something went wrong');
             return $this->redirect('/admin/users'); 
         }
     }
@@ -71,14 +73,13 @@ class UserAdminController extends Controller
     { 
         try {
             $user = $this->userReadService->getUserById($id);
-            return $this->view('admin/show', ['user' => $user]);
+            $specializations = $this->specializationService->getAllSpecializations();
+            return $this->view('admin/show', ['user' => $user, 'specializations' => $specializations]);
         } catch (DatabaseException $e) {
-            $_SESSION['error'] = 'Something went wrong';
-            logError($e->getMessage());
-            return $this->view('admin/show', ['user' => null]);
+            $this->handleException($e, 'Something went wrong');
+            return $this->view('admin/show', ['user' => null, 'specializations' => []]);
         } catch (UserNotFoundException $e) {
-            $_SESSION['error'] = 'User not found';
-            logError($e->getMessage());
+            $this->handleException($e, 'User not found');
             return $this->redirect('/admin/users');
         }
     }
@@ -90,19 +91,16 @@ class UserAdminController extends Controller
             $_SESSION['success'] = 'User updated successfully';
             return $this->redirect('/admin/users/' . $id);
         } catch (DatabaseException $e) {
-            $_SESSION['error'] = 'Something went wrong';  
-            logError($e->getMessage());
+            $this->handleException($e, 'Something went wrong');
             return $this->redirect('/admin/users/' . $id);
         } catch (InvalidUserDataException $e) {
-            $_SESSION['error'] = 'Validation error. Errors: ' . implode(', ', $e->getErrors());
+            $this->handleException($e, 'Validation error. Errors: ' . implode(', ', $e->getErrors()));
             return $this->redirect('/admin/users/' . $id);
         } catch (UserNotFoundException $e) {
-            $_SESSION['error'] = 'User not found';
-            logError($e->getMessage());
+            $this->handleException($e, 'User not found');
             return $this->redirect('/admin/users');
         } catch (\Throwable $e) {
-            $_SESSION['error'] = 'Error. Something went wrong';
-            logError($e->getMessage());
+            $this->handleException($e, 'Error. Something went wrong');
             return $this->redirect('/admin/users');
         }
     }
@@ -114,16 +112,13 @@ class UserAdminController extends Controller
             $_SESSION['success'] = 'User deleted successfully';
             return $this->redirect('/admin/users');
         } catch (DatabaseException $e) {
-            $_SESSION['error'] = 'Something went wrong';
-            logError($e->getMessage());
+            $this->handleException($e, 'Something went wrong');
             return $this->redirect('/admin/users');
         } catch (UserNotFoundException $e) {
-            $_SESSION['error'] = 'User not found';
-            logError($e->getMessage());
+            $this->handleException($e, 'User not found');
             return $this->redirect('/admin/users');
         } catch (\Throwable $e) {
-            $_SESSION['error'] = 'Error. Something went wrong';
-            logError($e->getMessage());
+            $this->handleException($e, 'Error. Something went wrong');
             return $this->redirect('/admin/users');
         }
     }

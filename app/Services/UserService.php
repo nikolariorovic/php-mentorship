@@ -9,6 +9,8 @@ use App\Factories\UserFactory;
 use App\Validators\Interfaces\ValidatorInterface;
 use App\Models\User;
 use App\Exceptions\UserNotFoundException;
+use App\Models\Mentor;
+use App\Helpers\UserHelper;
 
 class UserService implements UserReadServiceInterface, UserWriteServiceInterface
 {
@@ -25,13 +27,15 @@ class UserService implements UserReadServiceInterface, UserWriteServiceInterface
 
     public function getPaginatedUsers(int $page): array
     {
-        return $this->userRepository->getAllUsers($page);
+        $users = $this->userRepository->getAllUsers($page);
+        return array_map(fn($userData) => UserFactory::create($userData), $users);
     }
 
     public function createUser(array $data): void
     {
         $this->userCreateValidator->validate($data);
         $user = UserFactory::create($data);
+        
         $this->userRepository->createUser([
             $user->getFirstName(),
             $user->getLastName(),
@@ -42,12 +46,27 @@ class UserService implements UserReadServiceInterface, UserWriteServiceInterface
             $user->getRole(),
             date('Y-m-d H:i:s')
         ]);
+
+        if ($user instanceof Mentor && isset($data['specializations']) && is_array($data['specializations'])) {
+            $userData = $this->userRepository->findByEmail($user->getEmail());
+            if ($userData) {
+                $userId = $userData['id'];
+                $specializationIds = array_map('intval', $data['specializations']);
+                $this->userRepository->saveUserSpecializations($userId, $specializationIds);
+            }
+        }
     }
 
     public function getUserById(int $id): ?User
     {
-        $user = $this->userRepository->getUserById($id);
-        if (!$user) throw new UserNotFoundException();
+        $userSqlData = $this->userRepository->getUserById($id);
+        if (!$userSqlData) throw new UserNotFoundException();
+        $user = UserFactory::create($userSqlData[0]);
+
+        if ($user instanceof Mentor) {
+            $specializations = UserHelper::setSpecializations($userSqlData);
+            $user->setSpecializations($specializations);
+        }
         return $user;
     }
 
@@ -55,9 +74,9 @@ class UserService implements UserReadServiceInterface, UserWriteServiceInterface
     {
         $this->userUpdateValidator->validate($data);
 
-        $user = $this->userRepository->getUserById($id);
-        if (!$user) throw new UserNotFoundException();
-        
+        $userSqlData = $this->userRepository->getUserById($id);
+        if (!$userSqlData) throw new UserNotFoundException();
+        $user = UserFactory::create($userSqlData[0]);
         $isModified = false;
 
         if (isset($data['first_name']) && $user->getFirstName() !== $data['first_name']) {
@@ -94,12 +113,40 @@ class UserService implements UserReadServiceInterface, UserWriteServiceInterface
                 $user->getId()
             ]);
         }
+
+        if ($user instanceof Mentor) {
+            if (isset($data['specializations']) && is_array($data['specializations'])) {
+                $specializationIds = array_map('intval', $data['specializations']);
+                
+                $specializations = UserHelper::setSpecializations($userSqlData);
+                $user->setSpecializations($specializations);
+
+                $currentSpecializationIds = array_map(fn($s) => $s->getId(), $user->getSpecializations());
+                
+                $specializationsChanged = count($specializationIds) !== count($currentSpecializationIds) || 
+                                        array_diff($specializationIds, $currentSpecializationIds) !== [] ||
+                                        array_diff($currentSpecializationIds, $specializationIds) !== [];
+                
+                if ($specializationsChanged) {
+                    $this->userRepository->deleteUserSpecializations($user->getId());
+                    $this->userRepository->saveUserSpecializations($user->getId(), $specializationIds);
+                }
+            } else {
+                $this->userRepository->deleteUserSpecializations($user->getId());
+            }
+        }
     }
 
     public function deleteUser(int $id): void
     {
-        $user = $this->userRepository->getUserById($id);
-        if (!$user) throw new UserNotFoundException();
+        $userSqlData = $this->userRepository->getUserById($id);
+        if (!$userSqlData) throw new UserNotFoundException();
+        $user = UserFactory::create($userSqlData[0]);
+        
+        if ($user instanceof Mentor) {
+            $this->userRepository->deleteUserSpecializations($user->getId());
+        }
+        
         $this->userRepository->deleteUser([
             date('Y-m-d H:i:s'),
             $user->getEmail() . '_deleted_' . time(),

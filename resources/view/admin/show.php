@@ -20,7 +20,16 @@
                         <i class="btn-icon">←</i>
                         Back to Users
                     </a>
-                    <button class="btn btn-primary" onclick="editUser(<?php echo $user->getId(); ?>, '<?php echo htmlspecialchars($user->getFirstName()); ?>', '<?php echo htmlspecialchars($user->getLastName()); ?>', '<?php echo htmlspecialchars($user->getEmail()); ?>', '<?php echo htmlspecialchars($user->getRole()); ?>', '<?php echo htmlspecialchars($user->getBiography()); ?>', '<?php echo htmlspecialchars($user->getPrice() ?? ''); ?>')">
+                    <button class="btn btn-primary" 
+                            data-user-id="<?php echo $user->getId(); ?>"
+                            data-first-name="<?php echo htmlspecialchars($user->getFirstName()); ?>"
+                            data-last-name="<?php echo htmlspecialchars($user->getLastName()); ?>"
+                            data-email="<?php echo htmlspecialchars($user->getEmail()); ?>"
+                            data-role="<?php echo htmlspecialchars($user->getRole()); ?>"
+                            data-biography="<?php echo htmlspecialchars($user->getBiography()); ?>"
+                            data-price="<?php echo htmlspecialchars($user->getPrice() ?? ''); ?>"
+                            data-specializations="<?php echo $user instanceof App\Models\Mentor ? htmlspecialchars(json_encode(array_values(array_map(fn($s) => $s->getId(), $user->getSpecializations())))) : '[]'; ?>"
+                            onclick="editUserFromData(this)">
                         <i class="btn-icon">✏️</i>
                         Edit User
                     </button>
@@ -119,6 +128,19 @@
                         </div>
                     </div>
                     <?php endif; ?>
+
+                    <?php if ($user instanceof App\Models\Mentor && !empty($user->getSpecializations())): ?>
+                    <div class="detail-section full-width">
+                        <h4>Specializations</h4>
+                        <div class="specializations-list">
+                            <?php foreach ($user->getSpecializations() as $specialization): ?>
+                                <span class="specialization-badge">
+                                    <?php echo htmlspecialchars($specialization->getName()); ?>
+                                </span>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="user-actions">
@@ -172,6 +194,19 @@
                     <div class="form-group" id="editPricePerSessionGroup" style="display: none;">
                         <label for="edit_price_per_session">Price per Session *</label>
                         <input type="number" id="edit_price_per_session" name="price" min="0" step="0.01" placeholder="Enter price per session">
+                    </div>
+                    <div class="form-group" id="editSpecializationsGroup" style="display: none;">
+                        <label for="edit_specializations">Specializations</label>
+                        <select id="edit_specializations" name="specializations[]" multiple>
+                            <?php if (isset($specializations) && !empty($specializations)): ?>
+                                <?php foreach ($specializations as $specialization): ?>
+                                    <option value="<?php echo htmlspecialchars($specialization->getId()); ?>">
+                                        <?php echo htmlspecialchars($specialization->getName()); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <small class="form-help">Hold Ctrl (or Cmd on Mac) to select multiple specializations</small>
                     </div>
                     <div class="form-group">
                         <label for="edit_biography">Biography</label>

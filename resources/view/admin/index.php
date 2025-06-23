@@ -124,6 +124,19 @@
                         <label for="price_per_session">Price per Session *</label>
                         <input type="number" id="price_per_session" name="price" min="0" step="0.01" placeholder="Enter price per session">
                     </div>
+                    <div class="form-group" id="specializationsGroup" style="display: none;">
+                        <label for="specializations">Specializations</label>
+                        <select id="specializations" name="specializations[]" multiple>
+                            <?php if (!empty($specializations)): ?>
+                                <?php foreach ($specializations as $specialization): ?>
+                                    <option value="<?php echo htmlspecialchars($specialization->getId()); ?>">
+                                        <?php echo htmlspecialchars($specialization->getName()); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <small class="form-help">Hold Ctrl (or Cmd on Mac) to select multiple specializations</small>
+                    </div>
                     <div class="form-group">
                         <label for="biography">Biography</label>
                         <textarea id="biography" name="biography" rows="3"></textarea>

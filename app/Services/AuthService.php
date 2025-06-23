@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\AuthServiceInterface;
 use App\Exceptions\UserNotFoundException;
+use App\Factories\UserFactory;
 
 class AuthService implements AuthServiceInterface
 {
@@ -18,6 +19,7 @@ class AuthService implements AuthServiceInterface
     public function attempt(string $email, string $password): ?User
     {
         $user = $this->userRepository->findByEmail($email);
+        $user = $user ? UserFactory::create($user) : null;
         if ($user && $user->verifyPassword($password)) {
             return $user;
         }

@@ -14,4 +14,10 @@ class Controller {
         header("Location: $url");
         exit;
     }
+
+    protected function handleException(\Throwable $e, string $message = 'Something went wrong'): void
+    {
+        $_SESSION['error'] = $message;
+        logError($e->getMessage());
+    }
 }
