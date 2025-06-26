@@ -18,6 +18,35 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface {
         return $this->getUserBy('id', $id);
     }
 
+    public function getUserByIdOnly(int $id): ?array
+    {
+        try {
+            return $this->queryOne('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL', [$id]);
+        } catch (\PDOException $e) {
+            $this->handleDatabaseError($e);
+        }
+    }
+
+    public function getUserSpecializations(int $id): array
+    {
+        try {
+            $sql = "SELECT 
+                        s.id as specialization_id, 
+                        s.name as specialization_name,
+                        s.description as specialization_description,
+                        s.created_at as specialization_created_at,
+                        s.updated_at as specialization_updated_at
+                    FROM users u
+                    LEFT JOIN user_specializations us ON u.id = us.user_id
+                    LEFT JOIN specializations s ON us.specialization_id = s.id
+                    WHERE u.id = ? AND u.deleted_at IS NULL";
+            
+            return $this->query($sql, [$id]);
+        } catch (\PDOException $e) {
+            $this->handleDatabaseError($e);
+        }
+    }
+
     private function getUserBy(string $column, $value): ?array
     {
         $sql = "SELECT 

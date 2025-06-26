@@ -9,8 +9,6 @@ use App\Factories\UserFactory;
 
 class AuthService implements AuthServiceInterface
 {
-    private UserRepositoryInterface $userRepository;
-
     public function __construct(UserRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;

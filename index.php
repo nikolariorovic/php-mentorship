@@ -1,10 +1,24 @@
 <?php
+use App\Core\Router;
+use App\Middleware\AdminPanelMiddleware;
+use App\Core\Container;
+use App\Services\Interfaces\UserReadServiceInterface;
+use App\Services\Interfaces\UserWriteServiceInterface;
+use App\Services\UserService;
+use App\Services\Interfaces\SpecializationServiceInterface;
+use App\Validators\UserCreateValidator;
+use App\Validators\UserUpdateValidator;
+use App\Services\SpecializationService;
+use App\Repositories\SpecializationRepository;
+use App\Repositories\UserRepository;
+use App\Controllers\Admin\UserAdminController;
+use App\Services\Interfaces\AuthServiceInterface;
+use App\Services\AuthService;
 
 session_start();
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Create logs directory and simple logging function
 $logsDir = __DIR__ . '/storage/logs';
 if (!is_dir($logsDir)) {
     mkdir($logsDir, 0755, true);
@@ -15,11 +29,11 @@ function logError($message) {
     $timestamp = date('Y-m-d H:i:s');
     file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
+$container = new Container();
 
-use App\Core\Router;
-use App\Middleware\AdminPanelMiddleware;
+registerDependencies($container);
 
-$router = new Router();
+$router = new Router($container);
 
 require_once __DIR__ . '/routes/web.php';
 
@@ -31,7 +45,6 @@ $router->setNotFoundHandler(function() {
     echo "404 - Page not found";
 });
 
-// Set up error handler
 set_error_handler(function($severity, $message, $file, $line) {
     if (!(error_reporting() & $severity)) {
         return false;
@@ -39,15 +52,12 @@ set_error_handler(function($severity, $message, $file, $line) {
     throw new ErrorException($message, 0, $severity, $file, $line);
 });
 
-// Set up exception handler
 set_exception_handler(function($exception) {
     logError('Uncaught exception: ' . $exception->getMessage());
     
-    // Check if this is an API request or web request
     $isApiRequest = strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') === 0;
     
     if ($isApiRequest) {
-        // Return JSON for API requests
         http_response_code(500);
         header('Content-Type: application/json');
         echo json_encode([
@@ -55,7 +65,6 @@ set_exception_handler(function($exception) {
             'message' => 'Internal server error'
         ]);
     } else {
-        // For web requests, just show a simple error page instead of redirecting
         http_response_code(500);
         echo '<h1>Something went wrong</h1>';
         echo '<p>An error occurred. Please try again later.</p>';
@@ -65,3 +74,50 @@ set_exception_handler(function($exception) {
 });
 
 $router->dispatch();
+
+function registerDependencies(Container $container): void
+{
+    $container->bind(SpecializationServiceInterface::class, function(Container $c) {
+        return new SpecializationService(
+            new SpecializationRepository()
+        );
+    });
+
+    $container->bind(SpecializationRepository::class, function(Container $c) {
+        return new SpecializationRepository();
+    });
+
+    $container->bind(UserRepository::class, function(Container $c) {
+        return new UserRepository();
+    });
+
+    $container->bind(AuthServiceInterface::class, function(Container $c) {
+        return new AuthService(
+            new SpecializationRepository()
+        );
+    });
+
+    $container->bind(UserService::class, function(Container $c) {
+        return new UserService(
+            $c->resolve(UserRepository::class),
+            $c->resolve(UserCreateValidator::class),
+            $c->resolve(UserUpdateValidator::class)
+        );
+    });
+
+    $container->bind(UserReadServiceInterface::class, fn(Container $c) => $c->resolve(UserService::class));
+    $container->bind(UserWriteServiceInterface::class, fn(Container $c) => $c->resolve(UserService::class));
+
+    $container->bind(UserAdminController::class, function(Container $container) {
+        $userReadService = $container->resolve(UserReadServiceInterface::class);
+        $userWriteService = $container->resolve(UserWriteServiceInterface::class);
+        $specializationService = $container->resolve(SpecializationServiceInterface::class);
+        
+        return new \App\Controllers\Admin\UserAdminController(
+            $userReadService,
+            $userWriteService,
+            $specializationService
+        );
+    });
+    
+}

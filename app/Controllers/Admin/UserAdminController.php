@@ -17,16 +17,14 @@ use App\Repositories\SpecializationRepository;
 
 class UserAdminController extends Controller
 {
-    private UserReadServiceInterface $userReadService;
-    private UserWriteServiceInterface $userWriteService;
-    private SpecializationServiceInterface $specializationService;
-
-    public function __construct()
-    {
-        $userService = new UserService(new UserRepository(), new UserCreateValidator(), new UserUpdateValidator());
-        $this->userReadService = $userService;
-        $this->userWriteService = $userService;
-        $this->specializationService = new SpecializationService(new SpecializationRepository());
+    public function __construct(
+        UserReadServiceInterface $userReadService,
+        UserWriteServiceInterface $userWriteService,
+        SpecializationServiceInterface $specializationService
+    ) {
+        $this->userReadService = $userReadService;
+        $this->userWriteService = $userWriteService;
+        $this->specializationService = $specializationService;
     }
 
     public function index()

@@ -14,10 +14,6 @@ use App\Helpers\UserHelper;
 
 class UserService implements UserReadServiceInterface, UserWriteServiceInterface
 {
-    private UserRepositoryInterface $userRepository;
-    private ValidatorInterface $userCreateValidator;
-    private ValidatorInterface $userUpdateValidator;
-
     public function __construct(UserRepositoryInterface $userRepository, ValidatorInterface $userCreateValidator, ValidatorInterface $userUpdateValidator)
     {
         $this->userRepository = $userRepository;
@@ -59,14 +55,17 @@ class UserService implements UserReadServiceInterface, UserWriteServiceInterface
 
     public function getUserById(int $id): ?User
     {
-        $userSqlData = $this->userRepository->getUserById($id);
-        if (!$userSqlData) throw new UserNotFoundException();
-        $user = UserFactory::create($userSqlData[0]);
+        $userData = $this->userRepository->getUserByIdOnly($id);
+        if (!$userData) throw new UserNotFoundException();
+        
+        $user = UserFactory::create($userData);
 
         if ($user instanceof Mentor) {
-            $specializations = UserHelper::setSpecializations($userSqlData);
+            $specializationsData = $this->userRepository->getUserSpecializations($id);
+            $specializations = UserHelper::setSpecializations($specializationsData);
             $user->setSpecializations($specializations);
         }
+        
         return $user;
     }
 
@@ -74,9 +73,10 @@ class UserService implements UserReadServiceInterface, UserWriteServiceInterface
     {
         $this->userUpdateValidator->validate($data);
 
-        $userSqlData = $this->userRepository->getUserById($id);
-        if (!$userSqlData) throw new UserNotFoundException();
-        $user = UserFactory::create($userSqlData[0]);
+        $userData = $this->userRepository->getUserByIdOnly($id);
+        if (!$userData) throw new UserNotFoundException();
+        
+        $user = UserFactory::create($userData);
         $isModified = false;
 
         if (isset($data['first_name']) && $user->getFirstName() !== $data['first_name']) {
@@ -118,7 +118,8 @@ class UserService implements UserReadServiceInterface, UserWriteServiceInterface
             if (isset($data['specializations']) && is_array($data['specializations'])) {
                 $specializationIds = array_map('intval', $data['specializations']);
                 
-                $specializations = UserHelper::setSpecializations($userSqlData);
+                $specializationsData = $this->userRepository->getUserSpecializations($id);
+                $specializations = UserHelper::setSpecializations($specializationsData);
                 $user->setSpecializations($specializations);
 
                 $currentSpecializationIds = array_map(fn($s) => $s->getId(), $user->getSpecializations());
@@ -139,9 +140,10 @@ class UserService implements UserReadServiceInterface, UserWriteServiceInterface
 
     public function deleteUser(int $id): void
     {
-        $userSqlData = $this->userRepository->getUserById($id);
-        if (!$userSqlData) throw new UserNotFoundException();
-        $user = UserFactory::create($userSqlData[0]);
+        $userData = $this->userRepository->getUserByIdOnly($id);
+        if (!$userData) throw new UserNotFoundException();
+        
+        $user = UserFactory::create($userData);
         
         if ($user instanceof Mentor) {
             $this->userRepository->deleteUserSpecializations($user->getId());

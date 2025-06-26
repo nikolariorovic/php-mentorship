@@ -1,18 +1,14 @@
 <?php
 namespace App\Controllers;
 
-use App\Services\AuthService;
 use App\Services\Interfaces\AuthServiceInterface;
-use App\Repositories\UserRepository;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\UserNotFoundException;
 
-class LoginController extends Controller {
-
-    private AuthServiceInterface $authService;
-
-    public function __construct() {
-        $this->authService = new AuthService(new UserRepository());
+class LoginController extends Controller 
+{
+    public function __construct(AuthServiceInterface $authService) {
+        $this->authService = $authService;
     }
 
     public function login() {
@@ -23,15 +19,13 @@ class LoginController extends Controller {
             $this->authService->login($user);
             $this->redirect('/');
         } catch (DatabaseException $e) {
-            $_SESSION['error'] = 'Something went wrong';
-            logError($e->getMessage());
+            $this->handleException($e, 'Something went wrong');
             return $this->redirect('/');
         } catch (UserNotFoundException $e) {
-            $_SESSION['error'] = 'User not found';
+            $this->handleException($e, 'User not found');
             return $this->redirect('/');
         } catch (\Throwable $e) {
-            $_SESSION['error'] = 'Error. Something went wrong';
-            logError($e->getMessage());
+            $this->handleException($e, 'Error. Something went wrong');
             return $this->redirect('/');
         }
     }

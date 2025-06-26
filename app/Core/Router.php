@@ -2,8 +2,15 @@
 
 namespace App\Core;
 
-class Router
+final class Router
 {
+    private Container $container;
+
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+    }
+
     private array $routes = [];
     private $notFoundHandler;
     private array $currentGroupMiddleware = [];
@@ -97,7 +104,7 @@ class Router
 
                 if (is_array($route['handler'])) {
                     [$class, $method] = $route['handler'];
-                    $controller = new $class();
+                    $controller = $this->container->resolve($class);
                     return call_user_func_array([$controller, $method], $matches);
                 } else {
                     return call_user_func_array($route['handler'], $matches);
