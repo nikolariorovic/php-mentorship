@@ -13,7 +13,7 @@ class HomeController extends Controller {
         $role = $_SESSION['user']['role'] ?? null;
         switch ($role) {
             case 'student':
-                $this->view('student/index');
+                $this->redirect('/home');
                 break;
             case 'mentor':
                 $this->view('mentor/index');

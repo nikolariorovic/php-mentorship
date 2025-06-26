@@ -9,11 +9,15 @@ use App\Services\Interfaces\SpecializationServiceInterface;
 use App\Validators\UserCreateValidator;
 use App\Validators\UserUpdateValidator;
 use App\Services\SpecializationService;
+use App\Repositories\Interfaces\SpecializationRepositoryInterface;
 use App\Repositories\SpecializationRepository;
 use App\Repositories\UserRepository;
 use App\Controllers\Admin\UserAdminController;
 use App\Services\Interfaces\AuthServiceInterface;
 use App\Services\AuthService;
+use App\Controllers\LoginController;
+use App\Repositories\Interfaces\UserRepositoryInterface;
+use App\Controllers\StudentController;
 
 session_start();
 
@@ -79,27 +83,27 @@ function registerDependencies(Container $container): void
 {
     $container->bind(SpecializationServiceInterface::class, function(Container $c) {
         return new SpecializationService(
-            new SpecializationRepository()
+            $c->resolve(SpecializationRepositoryInterface::class)
         );
     });
 
-    $container->bind(SpecializationRepository::class, function(Container $c) {
+    $container->bind(SpecializationRepositoryInterface::class, function(Container $c) {
         return new SpecializationRepository();
     });
 
-    $container->bind(UserRepository::class, function(Container $c) {
+    $container->bind(UserRepositoryInterface::class, function(Container $c) {
         return new UserRepository();
     });
 
     $container->bind(AuthServiceInterface::class, function(Container $c) {
         return new AuthService(
-            new SpecializationRepository()
+            $c->resolve(UserRepositoryInterface::class)
         );
     });
 
     $container->bind(UserService::class, function(Container $c) {
         return new UserService(
-            $c->resolve(UserRepository::class),
+            $c->resolve(UserRepositoryInterface::class),
             $c->resolve(UserCreateValidator::class),
             $c->resolve(UserUpdateValidator::class)
         );
@@ -119,5 +123,21 @@ function registerDependencies(Container $container): void
             $specializationService
         );
     });
+
+    $container->bind(LoginController::class, function(Container $container) {
+        $authService = $container->resolve(AuthServiceInterface::class);
+        
+        return new LoginController(
+            $authService
+        );
+    });
     
+    $container->bind(StudentController::class, function(Container $container) {
+        $specializationService = $container->resolve(SpecializationServiceInterface::class);
+        $userReadService = $container->resolve(UserReadServiceInterface::class);
+        return new StudentController(
+            $specializationService,
+            $userReadService
+        );
+    });
 }

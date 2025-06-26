@@ -127,4 +127,33 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface {
             $this->handleDatabaseError($e);
         }
     }
+
+    public function getMentorsBySpecialization(int $specializationId): array
+    {
+        try {
+            $sql = "SELECT DISTINCT u.id, u.first_name, u.last_name, u.biography, u.price
+                    FROM users u
+                    INNER JOIN user_specializations us ON u.id = us.user_id
+                    WHERE us.specialization_id = ? AND u.role = 'mentor' AND u.deleted_at IS NULL
+                    ORDER BY u.first_name, u.last_name";
+            
+            return $this->query($sql, [$specializationId]);
+        } catch (\PDOException $e) {
+            $this->handleDatabaseError($e);
+        }
+    }
+
+    public function getAvailableTimeSlots(int $mentorId, string $date): array
+    {
+        try {
+            $sql = "SELECT period FROM appointments 
+                    WHERE mentor_id = ? 
+                    AND DATE(period) = ? 
+                    AND status != 'rejected'";
+                  
+            return $this->query($sql, [$mentorId, $date]);
+        } catch (\PDOException $e) {
+            $this->handleDatabaseError($e);
+        }
+    }
 }
