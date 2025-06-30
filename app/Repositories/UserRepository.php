@@ -142,18 +142,4 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface {
             $this->handleDatabaseError($e);
         }
     }
-
-    public function getAvailableTimeSlots(int $mentorId, string $date): array
-    {
-        try {
-            $sql = "SELECT period FROM appointments 
-                    WHERE mentor_id = ? 
-                    AND DATE(period) = ? 
-                    AND status != 'rejected'";
-                  
-            return $this->query($sql, [$mentorId, $date]);
-        } catch (\PDOException $e) {
-            $this->handleDatabaseError($e);
-        }
-    }
 }

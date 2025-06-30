@@ -18,6 +18,13 @@ use App\Services\AuthService;
 use App\Controllers\LoginController;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Controllers\StudentController;
+use App\Services\AppointmentService;
+use App\Repositories\Interfaces\AppointmentRepositoryInterface;
+use App\Services\Interfaces\AppointmentReadServiceInterface;
+use App\Services\Interfaces\AppointmentWriteServiceInterface;
+use App\Repositories\AppointmentRepository;
+use App\Validators\BookingValidator;
+use App\Validators\TimeSlotValidator;
 
 session_start();
 
@@ -95,6 +102,10 @@ function registerDependencies(Container $container): void
         return new UserRepository();
     });
 
+    $container->bind(AppointmentRepositoryInterface::class, function(Container $c) {
+        return new AppointmentRepository();
+    });
+
     $container->bind(AuthServiceInterface::class, function(Container $c) {
         return new AuthService(
             $c->resolve(UserRepositoryInterface::class)
@@ -109,8 +120,34 @@ function registerDependencies(Container $container): void
         );
     });
 
+    $container->bind(AppointmentService::class, function(Container $c) {
+        return new AppointmentService(
+            $c->resolve(AppointmentRepositoryInterface::class),
+            $c->resolve(BookingValidator::class),
+            $c->resolve(TimeSlotValidator::class)
+        );
+    });
+
+    $container->bind(BookingValidator::class, function(Container $c) {
+        return new BookingValidator();
+    });
+
+    $container->bind(TimeSlotValidator::class, function(Container $c) {
+        return new TimeSlotValidator();
+    });
+
+    $container->bind(UserCreateValidator::class, function(Container $c) {
+        return new UserCreateValidator();
+    });
+
+    $container->bind(UserUpdateValidator::class, function(Container $c) {
+        return new UserUpdateValidator();
+    });
+
     $container->bind(UserReadServiceInterface::class, fn(Container $c) => $c->resolve(UserService::class));
     $container->bind(UserWriteServiceInterface::class, fn(Container $c) => $c->resolve(UserService::class));
+    $container->bind(AppointmentReadServiceInterface::class, fn(Container $c) => $c->resolve(AppointmentService::class));
+    $container->bind(AppointmentWriteServiceInterface::class, fn(Container $c) => $c->resolve(AppointmentService::class));
 
     $container->bind(UserAdminController::class, function(Container $container) {
         $userReadService = $container->resolve(UserReadServiceInterface::class);
@@ -135,9 +172,14 @@ function registerDependencies(Container $container): void
     $container->bind(StudentController::class, function(Container $container) {
         $specializationService = $container->resolve(SpecializationServiceInterface::class);
         $userReadService = $container->resolve(UserReadServiceInterface::class);
+        $appointmentReadService = $container->resolve(AppointmentReadServiceInterface::class);
+        $appointmentWriteService = $container->resolve(AppointmentWriteServiceInterface::class);
+
         return new StudentController(
             $specializationService,
-            $userReadService
+            $userReadService,
+            $appointmentReadService,
+            $appointmentWriteService
         );
     });
 }

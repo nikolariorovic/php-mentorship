@@ -160,24 +160,4 @@ class UserService implements UserReadServiceInterface, UserWriteServiceInterface
     {
         return $this->userRepository->getMentorsBySpecialization($specializationId);
     }
-
-    public function getAvailableTimeSlots(int $mentorId, string $date): array
-    {
-        $bookedSlots = $this->userRepository->getAvailableTimeSlots($mentorId, $date);
-        $allSlots = UserHelper::getAllTimeSlotsForDate($date);
-        
-        if (empty($bookedSlots)) {
-            return $allSlots;
-        }
-        
-        $bookedTimes = array_map(function($slot) {
-            return $slot['period'];
-        }, $bookedSlots);
-        
-        $availableSlots = array_filter($allSlots, function($slot) use ($bookedTimes) {
-            return !in_array($slot['time'], $bookedTimes);
-        });
-        
-        return array_values($availableSlots);
-    }
 }

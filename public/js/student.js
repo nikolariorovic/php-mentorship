@@ -71,6 +71,12 @@ async function loadMentors() {
             // Show step 2
             showStep(2);
         } else {
+            // Proveravamo da li je authentication error
+            if (data.message && data.message.includes('not authenticated')) {
+                window.location.href = '/';
+                return;
+            }
+            
             showError('Failed to load mentors: ' + (data.message || 'Unknown error'));
             mentorSelect.innerHTML = '<option value="">-- Error loading mentors --</option>';
         }
@@ -135,6 +141,12 @@ async function loadTimeSlots() {
                 timeSelect.innerHTML = '<option value="">-- No available slots for this date --</option>';
             }
         } else {
+            // Proveravamo da li je authentication error
+            if (data.message && data.message.includes('not authenticated')) {
+                window.location.href = '/';
+                return;
+            }
+            
             showError('Failed to load time slots: ' + (data.message || 'Unknown error'));
             timeSelect.innerHTML = '<option value="">-- Error loading time slots --</option>';
         }
@@ -178,6 +190,10 @@ async function bookSession() {
         return;
     }
 
+    // Get mentor price from selected mentor data
+    const mentor = window.mentorsData.find(m => m.id == mentorId);
+    const price = mentor ? mentor.price : 0;
+
     const bookButton = document.getElementById('bookButton');
     const originalText = bookButton.innerHTML;
     
@@ -186,13 +202,14 @@ async function bookSession() {
     bookButton.disabled = true;
     
     try {
-        // Pozivamo backend API za rezervisanje
+        // Pozivamo backend API za rezervisanje - koristimo tvoju rutu
         const formData = new FormData();
         formData.append('mentor_id', mentorId);
         formData.append('date', date);
         formData.append('time', time);
+        formData.append('price', price);
         
-        const response = await fetch('/bookSession', {
+        const response = await fetch('/bookAppointment', {
             method: 'POST',
             body: formData
         });
@@ -200,15 +217,21 @@ async function bookSession() {
         const data = await response.json();
         
         if (data.success) {
-            showSuccess(data.message || 'Session booked successfully!');
+            showSuccess(data.message || 'Appointment booked successfully!');
             // Reset form
             resetForm();
         } else {
-            showError(data.message || 'Failed to book session');
+            // Proveravamo da li je authentication error
+            if (data.message && data.message.includes('not authenticated')) {
+                window.location.href = '/';
+                return;
+            }
+            
+            showError(data.message || 'Failed to book appointment');
         }
     } catch (error) {
-        console.error('Error booking session:', error);
-        showError('Failed to book session. Please try again.');
+        console.error('Error booking appointment:', error);
+        showError('Failed to book appointment. Please try again.');
     } finally {
         // Restore button
         bookButton.innerHTML = originalText;

@@ -4,13 +4,19 @@ namespace App\Controllers;
 
 use App\Services\Interfaces\SpecializationServiceInterface;
 use App\Exceptions\DatabaseException;
+use App\Exceptions\InvalidBookingDataException;
+use App\Exceptions\InvalidTimeSlotDataException;
 use App\Services\Interfaces\UserReadServiceInterface;
+use App\Services\Interfaces\AppointmentReadServiceInterface;
+use App\Services\Interfaces\AppointmentWriteServiceInterface;
 
 class StudentController extends Controller {
 
-    public function __construct(SpecializationServiceInterface $specializationService, UserReadServiceInterface $userReadService) {
+    public function __construct(SpecializationServiceInterface $specializationService, UserReadServiceInterface $userReadService, AppointmentReadServiceInterface $appointmentReadService, AppointmentWriteServiceInterface $appointmentWriteService) {
         $this->specializationService = $specializationService;
         $this->userReadService = $userReadService;
+        $this->appointmentReadService = $appointmentReadService;
+        $this->appointmentWriteService = $appointmentWriteService;
     }
 
     public function index() {
@@ -35,10 +41,7 @@ class StudentController extends Controller {
             ]);
         } catch (DatabaseException $e) {
             $this->handleException($e, 'Something went wrong');
-            return $this->json([
-                'success' => false,
-                'message' => 'Something went wrong'
-            ]);
+            return $this->json(json_decode((string) $e, true));
         } catch (\Throwable $e) {
             $this->handleException($e, 'Error. Something went wrong');
             return $this->json([
@@ -50,25 +53,16 @@ class StudentController extends Controller {
 
     public function getAvailableTimeSlots() {
         try {
-            $mentorId = $_GET['mentor_id'];
-            $date = $_GET['date'];
-            if (!$mentorId || !$date) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Mentor ID and date are required'
-                ]);
-            }
-            $slots = $this->userReadService->getAvailableTimeSlots($mentorId, $date);
+            $slots = $this->appointmentReadService->getAvailableTimeSlots($_GET);
             return $this->json([
                 'success' => true,
                 'slots' => $slots
             ]);
+        } catch (InvalidTimeSlotDataException $e) {
+            return $this->json(json_decode((string) $e, true));
         } catch (DatabaseException $e) {
             $this->handleException($e, 'Something went wrong');
-            return $this->json([
-                'success' => false,
-                'message' => 'Something went wrong'
-            ]);
+            return $this->json(json_decode((string) $e, true));
         } catch (\Throwable $e) {
             $this->handleException($e, 'Error. Something went wrong');
             return $this->json([
@@ -76,5 +70,33 @@ class StudentController extends Controller {
                 'message' => 'Error. Something went wrong'
             ]);
         }
-}
+    }
+
+    public function bookAppointment() {
+        try {
+            $this->appointmentWriteService->bookAppointment($_POST);
+            return $this->json([
+                'success' => true,
+                'message' => 'Appointment booked successfully'
+            ]);
+        } catch (InvalidBookingDataException $e) {
+            return $this->json(json_decode((string) $e, true));
+        } catch (\InvalidArgumentException $e) {
+            $this->handleException($e, 'User not authenticated. Please login again.');
+            return $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'logout' => true
+            ]);
+        } catch (DatabaseException $e) {
+            $this->handleException($e, 'Something went wrong');
+            return $this->json(json_decode((string) $e, true));
+        } catch (\Throwable $e) {
+            $this->handleException($e, 'Error. Something went wrong');
+            return $this->json([
+                'success' => false,
+                'message' => 'Error. Something went wrong'
+            ]);
+        }
+    }
 }
