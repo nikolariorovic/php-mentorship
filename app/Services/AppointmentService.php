@@ -7,15 +7,17 @@ use App\Services\Interfaces\AppointmentReadServiceInterface;
 use App\Services\Interfaces\AppointmentWriteServiceInterface;
 use App\Validators\BookingValidator;
 use App\Validators\TimeSlotValidator;
+use App\Validators\UpdateAppointmentStatusValidator;
 use App\Exceptions\InvalidBookingDataException;
 use App\Exceptions\InvalidTimeSlotDataException;
 
 class AppointmentService implements AppointmentReadServiceInterface, AppointmentWriteServiceInterface 
 {
-    public function __construct(AppointmentRepositoryInterface $appointmentRepository, BookingValidator $bookingValidator, TimeSlotValidator $timeSlotValidator) {
+    public function __construct(AppointmentRepositoryInterface $appointmentRepository, BookingValidator $bookingValidator, TimeSlotValidator $timeSlotValidator, UpdateAppointmentStatusValidator $updateAppointmentStatusValidator) {
         $this->appointmentRepository = $appointmentRepository;
         $this->bookingValidator = $bookingValidator;
         $this->timeSlotValidator = $timeSlotValidator;
+        $this->updateAppointmentStatusValidator = $updateAppointmentStatusValidator;
     }
 
     public function getAvailableTimeSlots(array $data): array
@@ -54,5 +56,20 @@ class AppointmentService implements AppointmentReadServiceInterface, Appointment
         $dateTime = strpos($data['time'], ' ') !== false ? $data['time'] : $data['date'] . ' ' . $data['time'];
         
         $this->appointmentRepository->bookAppointment($data['mentor_id'], $dateTime, $_SESSION['user']['id'], $data['price']);
+    }
+
+    public function getPaginatedAppointments(int $page): array
+    {
+        if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
+            throw new \InvalidArgumentException('User not authenticated. Please login again.');
+        }
+     
+        return $this->appointmentRepository->getPaginatedAppointments($_SESSION['user']['id'], $page);
+    }
+
+    public function updateAppointmentStatus(array $data): void
+    {
+        $this->updateAppointmentStatusValidator->validate($data);
+        $this->appointmentRepository->updateAppointmentStatus($data['appointment_id'], $data['status']);
     }
 }

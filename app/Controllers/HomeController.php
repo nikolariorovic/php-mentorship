@@ -16,7 +16,7 @@ class HomeController extends Controller {
                 $this->redirect('/home');
                 break;
             case 'mentor':
-                $this->view('mentor/index');
+                $this->redirect('/admin/mentor');
                 break;
             case 'admin':
                 $this->redirect('/admin/users');

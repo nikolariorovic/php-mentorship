@@ -25,6 +25,8 @@ use App\Services\Interfaces\AppointmentWriteServiceInterface;
 use App\Repositories\AppointmentRepository;
 use App\Validators\BookingValidator;
 use App\Validators\TimeSlotValidator;
+use App\Validators\UpdateAppointmentStatusValidator;
+use App\Controllers\Admin\MentorAdminController;
 
 session_start();
 
@@ -124,7 +126,8 @@ function registerDependencies(Container $container): void
         return new AppointmentService(
             $c->resolve(AppointmentRepositoryInterface::class),
             $c->resolve(BookingValidator::class),
-            $c->resolve(TimeSlotValidator::class)
+            $c->resolve(TimeSlotValidator::class),
+            $c->resolve(UpdateAppointmentStatusValidator::class)
         );
     });
 
@@ -178,6 +181,16 @@ function registerDependencies(Container $container): void
         return new StudentController(
             $specializationService,
             $userReadService,
+            $appointmentReadService,
+            $appointmentWriteService
+        );
+    });
+
+    $container->bind(MentorAdminController::class, function(Container $container) {
+        $appointmentReadService = $container->resolve(AppointmentReadServiceInterface::class);
+        $appointmentWriteService = $container->resolve(AppointmentWriteServiceInterface::class);
+
+        return new MentorAdminController(
             $appointmentReadService,
             $appointmentWriteService
         );

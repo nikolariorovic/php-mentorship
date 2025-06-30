@@ -25,4 +25,16 @@ class AppointmentRepository extends BaseRepository implements AppointmentReposit
         $sql = "INSERT INTO appointments (mentor_id, period, student_id, price, created_at) VALUES (?, ?, ?, ?, NOW())";
         $this->execute($sql, [$mentorId, $dateTime, $studentId, $price]);
     }
+
+    public function getPaginatedAppointments(int $userId, int $page): array
+    {
+        $sql = "SELECT * FROM appointments WHERE mentor_id = ? AND status != 'rejected' ORDER BY created_at DESC LIMIT 10 OFFSET ?";
+        return $this->query($sql, [$userId, ($page - 1) * 10]);
+    }
+
+    public function updateAppointmentStatus(int $appointmentId, string $status): void
+    {
+        $sql = "UPDATE appointments SET status = ? WHERE id = ?";
+        $this->execute($sql, [$status, $appointmentId]);
+    }
 }
