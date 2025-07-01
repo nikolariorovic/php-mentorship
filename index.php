@@ -27,6 +27,13 @@ use App\Validators\BookingValidator;
 use App\Validators\TimeSlotValidator;
 use App\Validators\UpdateAppointmentStatusValidator;
 use App\Controllers\Admin\MentorAdminController;
+use App\Services\Interfaces\PaymentServiceInterface;
+use App\Services\CardPaymentService;
+use App\Validators\PaymentValidator;
+use App\Controllers\PaymentController;
+use App\Services\PaymentService;
+use App\Services\PaymentGateway\FakePaymentGateway;
+use App\Repositories\PaymentRepository;
 
 session_start();
 
@@ -147,6 +154,34 @@ function registerDependencies(Container $container): void
         return new UserUpdateValidator();
     });
 
+    $container->bind(PaymentValidator::class, function(Container $c) {
+        return new PaymentValidator();
+    });
+
+    // Payment gateway bindings
+    $container->bind(FakePaymentGateway::class, function(Container $c) {
+        return new FakePaymentGateway();
+    });
+
+    // Payment repository binding
+    $container->bind(PaymentRepository::class, function(Container $c) {
+        return new PaymentRepository();
+    });
+
+    // Payment service binding
+    $container->bind(PaymentService::class, function(Container $c) {
+        $paymentService = new PaymentService(
+            $c->resolve(AppointmentService::class),
+            $c->resolve(PaymentRepository::class),
+            $c->resolve(PaymentValidator::class)
+        );
+        
+        // Register fake payment gateway
+        $paymentService->registerGateway($c->resolve(FakePaymentGateway::class));
+        
+        return $paymentService;
+    });
+
     $container->bind(UserReadServiceInterface::class, fn(Container $c) => $c->resolve(UserService::class));
     $container->bind(UserWriteServiceInterface::class, fn(Container $c) => $c->resolve(UserService::class));
     $container->bind(AppointmentReadServiceInterface::class, fn(Container $c) => $c->resolve(AppointmentService::class));
@@ -193,6 +228,14 @@ function registerDependencies(Container $container): void
         return new MentorAdminController(
             $appointmentReadService,
             $appointmentWriteService
+        );
+    });
+
+
+
+    $container->bind(PaymentController::class, function(Container $c) {
+        return new PaymentController(
+            $c->resolve(PaymentService::class)
         );
     });
 }

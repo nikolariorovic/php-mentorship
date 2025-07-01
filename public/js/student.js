@@ -184,8 +184,9 @@ async function bookSession() {
     const mentorId = document.getElementById('mentor').value;
     const date = document.getElementById('date').value;
     const time = document.getElementById('time').value;
+    const specializationId = document.getElementById('specialization').value;
     
-    if (!mentorId || !date || !time) {
+    if (!mentorId || !date || !time || !specializationId) {
         showError('Please fill in all fields');
         return;
     }
@@ -208,6 +209,7 @@ async function bookSession() {
         formData.append('date', date);
         formData.append('time', time);
         formData.append('price', price);
+        formData.append('specialization_id', specializationId);
         
         const response = await fetch('/bookAppointment', {
             method: 'POST',

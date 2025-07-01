@@ -10,6 +10,7 @@ use App\Validators\TimeSlotValidator;
 use App\Validators\UpdateAppointmentStatusValidator;
 use App\Exceptions\InvalidBookingDataException;
 use App\Exceptions\InvalidTimeSlotDataException;
+use App\Exceptions\InvalidArgumentException;
 
 class AppointmentService implements AppointmentReadServiceInterface, AppointmentWriteServiceInterface 
 {
@@ -55,21 +56,26 @@ class AppointmentService implements AppointmentReadServiceInterface, Appointment
         
         $dateTime = strpos($data['time'], ' ') !== false ? $data['time'] : $data['date'] . ' ' . $data['time'];
         
-        $this->appointmentRepository->bookAppointment($data['mentor_id'], $dateTime, $_SESSION['user']['id'], $data['price']);
+        $this->appointmentRepository->bookAppointment($data['mentor_id'], $dateTime, $_SESSION['user']['id'], $data['price'], $data['specialization_id']);
     }
 
     public function getPaginatedAppointments(int $page): array
     {
         if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
-            throw new \InvalidArgumentException('User not authenticated. Please login again.');
+            throw new InvalidArgumentException('User not authenticated. Please login again.');
         }
      
-        return $this->appointmentRepository->getPaginatedAppointments($_SESSION['user']['id'], $page);
+        return $this->appointmentRepository->getPaginatedAppointments($_SESSION['user']['id'], $_SESSION['user']['role'], $page);
     }
 
     public function updateAppointmentStatus(array $data): void
     {
         $this->updateAppointmentStatusValidator->validate($data);
         $this->appointmentRepository->updateAppointmentStatus($data['appointment_id'], $data['status']);
+    }
+
+    public function updatePaymentStatus(int $appointmentId, string $paymentStatus, bool $isPaid = false): void
+    {
+        $this->appointmentRepository->updatePaymentStatus($appointmentId, $paymentStatus, $isPaid);
     }
 }

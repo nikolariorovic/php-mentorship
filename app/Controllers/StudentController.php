@@ -6,6 +6,7 @@ use App\Services\Interfaces\SpecializationServiceInterface;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\InvalidBookingDataException;
 use App\Exceptions\InvalidTimeSlotDataException;
+use App\Exceptions\InvalidArgumentException;
 use App\Services\Interfaces\UserReadServiceInterface;
 use App\Services\Interfaces\AppointmentReadServiceInterface;
 use App\Services\Interfaces\AppointmentWriteServiceInterface;
@@ -81,13 +82,9 @@ class StudentController extends Controller {
             ]);
         } catch (InvalidBookingDataException $e) {
             return $this->json(json_decode((string) $e, true));
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $this->handleException($e, 'User not authenticated. Please login again.');
-            return $this->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-                'logout' => true
-            ]);
+            return $this->json(json_decode((string) $e, true));
         } catch (DatabaseException $e) {
             $this->handleException($e, 'Something went wrong');
             return $this->json(json_decode((string) $e, true));
@@ -97,6 +94,23 @@ class StudentController extends Controller {
                 'success' => false,
                 'message' => 'Error. Something went wrong'
             ]);
+        }
+    }
+
+    public function appointments() {
+        try {
+            $page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0
+            ? (int) $_GET['page']
+            : 1;
+
+            $appointments = $this->appointmentReadService->getPaginatedAppointments($page);
+            return $this->view('student/appointments', ['appointments' => $appointments]);
+        } catch (DatabaseException $e) {
+            $this->handleException($e, 'Something went wrong');
+            return $this->view('student/appointments');
+        } catch (\Throwable $e) {
+            $this->handleException($e, 'Error. Something went wrong');
+            return $this->view('student/appointments');
         }
     }
 }

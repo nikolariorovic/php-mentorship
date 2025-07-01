@@ -2,7 +2,7 @@
 namespace App\Models;
 
 use DateTime;
-use InvalidArgumentException;
+use App\Exceptions\InvalidArgumentException;
 
 abstract class User
 {

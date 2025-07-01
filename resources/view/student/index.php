@@ -7,6 +7,33 @@
     <link rel="stylesheet" href="../../public/css/login.css">
     <link rel="stylesheet" href="../../public/css/student.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -16,6 +43,10 @@
         </div>
         <div class="header-actions">
             <span class="welcome-text">Welcome, <?php echo htmlspecialchars($_SESSION['user']['first_name'] ?? 'Student'); ?>!</span>
+            <a href="/appointments" class="btn btn-secondary" style="margin-right: 10px;">
+                <i class="fas fa-calendar-check"></i>
+                My Bookings
+            </a>
             <a href="/logout" class="logout-button">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout

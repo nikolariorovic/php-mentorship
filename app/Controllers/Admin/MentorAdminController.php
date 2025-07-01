@@ -5,6 +5,7 @@ use App\Controllers\Controller;
 use App\Services\Interfaces\AppointmentReadServiceInterface;
 use App\Services\Interfaces\AppointmentWriteServiceInterface;
 use App\Exceptions\DatabaseException;
+use App\Exceptions\InvalidArgumentException;
 
 class MentorAdminController extends Controller
 {
@@ -25,7 +26,7 @@ class MentorAdminController extends Controller
         } catch (DatabaseException $e) {
             $this->handleException($e, 'Something went wrong');
             return $this->view('mentor/index');
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $this->handleException($e, 'User not authenticated. Please login again.');
             return $this->view('mentor/index');
         } catch (\Throwable $e) {
@@ -41,7 +42,7 @@ class MentorAdminController extends Controller
         } catch (DatabaseException $e) {
             $this->handleException($e, 'Something went wrong');
             return $this->json(['success' => false]);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $this->handleException($e, 'User not authenticated. Please login again.');
             return $this->json(['success' => false]);
         } catch (\Throwable $e) {

@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\Mentor;
 use App\Models\Student;
 use App\Models\User;
+use App\Exceptions\InvalidArgumentException;
 
 class UserFactory implements UserFactoryInterface
 {
@@ -15,7 +16,7 @@ class UserFactory implements UserFactoryInterface
             'admin' => new Admin($data),
             'mentor' => new Mentor($data),
             'student' => new Student($data),
-            default => throw new \InvalidArgumentException('Invalid user role')
+            default => throw new InvalidArgumentException('Invalid user role')
         };
     }
 }

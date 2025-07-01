@@ -2,7 +2,7 @@
 
 namespace App\Exceptions;
 
-class BaseException extends \Exception
+abstract class BaseException extends \Exception
 {
     protected array $errors = [];
 

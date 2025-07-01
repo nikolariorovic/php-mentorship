@@ -52,4 +52,8 @@ class BaseRepository {
         logError('Database error: ' . $e->getMessage());
         throw new DatabaseException("Database error: " . $e->getMessage());
     }
+
+    protected function getLastInsertId(): int {
+        return (int) $this->db->lastInsertId();
+    }
 }

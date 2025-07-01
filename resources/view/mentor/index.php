@@ -20,12 +20,12 @@
                     <thead>
                         <tr style="background: #f8f9fa;">
                             <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">ID</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Student ID</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Student</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Specialization</th>
                             <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Date & Time</th>
                             <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Status</th>
                             <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Price</th>
                             <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Payment Status</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Rating</th>
                             <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Created At</th>
                             <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Actions</th>
                         </tr>
@@ -34,7 +34,24 @@
                         <?php foreach ($appointments as $appointment): ?>
                         <tr id="appointment-row-<?php echo $appointment['id']; ?>">
                             <td style="padding: 10px; border: 1px solid #ddd;"><?php echo htmlspecialchars($appointment['id']); ?></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><?php echo htmlspecialchars($appointment['student_id']); ?></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 35px; height: 35px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">
+                                        👨‍🎓
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600;">
+                                            <?php echo htmlspecialchars($appointment['student_name'] . ' ' . $appointment['student_last_name']); ?>
+                                        </div>
+                                        <div style="font-size: 11px; color: #6c757d;">ID: <?php echo htmlspecialchars($appointment['student_id']); ?></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                    <?php echo htmlspecialchars($appointment['specialization_name']); ?>
+                                </span>
+                            </td>
                             <td style="padding: 10px; border: 1px solid #ddd;">
                                 <?php echo date('D, M j, Y', strtotime($appointment['period'])); ?><br>
                                 <?php echo date('H:i', strtotime($appointment['period'])); ?>
@@ -52,17 +69,10 @@
                             </td>
                             <td style="padding: 10px; border: 1px solid #ddd;">$<?php echo number_format($appointment['price'], 2); ?></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">
-                                <?php if ($appointment['payment_status'] == '1'): ?>
-                                    <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Paid</span>
+                                <?php if ($appointment['payment_status'] == 'confirmed'): ?>
+                                    <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Confirmed</span>
                                 <?php else: ?>
                                     <span style="background: #ffc107; color: #212529; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Pending</span>
-                                <?php endif; ?>
-                            </td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">
-                                <?php if ($appointment['rating']): ?>
-                                    <?php echo $appointment['rating']; ?>/5
-                                <?php else: ?>
-                                    No rating
                                 <?php endif; ?>
                             </td>
                             <td style="padding: 10px; border: 1px solid #ddd;"><?php echo date('M j, Y H:i', strtotime($appointment['created_at'])); ?></td>
@@ -77,7 +87,12 @@
                                                 style="margin: 2px; padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
                                             Decline
                                         </button>
-                                    <?php elseif ($appointment['status'] === 'accepted' && $appointment['payment_status'] == '1'): ?>
+                                    <?php elseif ($appointment['status'] === 'accepted' && $appointment['payment_status'] == 'confirmed'): ?>
+                                        <button onclick="updateAppointmentStatus(<?php echo $appointment['id']; ?>, 'finished')" 
+                                                style="margin: 2px; padding: 6px 12px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                            Mark as Finished
+                                        </button>
+                                    <?php elseif ($appointment['status'] === 'paid' && $appointment['payment_status'] == 'confirmed'): ?>
                                         <button onclick="updateAppointmentStatus(<?php echo $appointment['id']; ?>, 'finished')" 
                                                 style="margin: 2px; padding: 6px 12px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
                                             Mark as Finished
@@ -199,6 +214,11 @@
                             textColor = '#0c5460';
                             statusText = 'Accepted';
                             break;
+                        case 'paid':
+                            backgroundColor = '#28a745';
+                            textColor = '#ffffff';
+                            statusText = 'Paid';
+                            break;
                         case 'rejected':
                             backgroundColor = '#f8d7da';
                             textColor = '#721c24';
@@ -220,15 +240,25 @@
                     statusElement.textContent = statusText;
                     
                     // Update actions based on new status
-                    if (newStatus === 'accepted') {
+                    if (newStatus === 'paid') {
                         // Check if payment is completed before showing "Mark as Finished"
-                        const paymentStatusElement = document.querySelector(`#appointment-row-${appointmentId} td:nth-child(6) span`);
-                        const isPaid = paymentStatusElement && paymentStatusElement.textContent.trim() === 'Paid';
+                        const paymentStatusElement = document.querySelector(`#appointment-row-${appointmentId} td:nth-child(7) span`);
+                        const isConfirmed = paymentStatusElement && paymentStatusElement.textContent.trim() === 'Confirmed';
                         
-                        if (isPaid) {
+                        if (isConfirmed) {
                             actionDiv.innerHTML = '<button onclick="updateAppointmentStatus(' + appointmentId + ', \'finished\')" style="margin: 2px; padding: 6px 12px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Mark as Finished</button>';
                         } else {
-                            actionDiv.innerHTML = '<span style="color: #6c757d; font-size: 12px;">Waiting for payment</span>';
+                            actionDiv.innerHTML = '<span style="color: #6c757d; font-size: 12px;">Waiting for payment confirmation</span>';
+                        }
+                    } else if (newStatus === 'accepted') {
+                        // Check if payment is confirmed before showing "Mark as Finished"
+                        const paymentStatusElement = document.querySelector(`#appointment-row-${appointmentId} td:nth-child(7) span`);
+                        const isConfirmed = paymentStatusElement && paymentStatusElement.textContent.trim() === 'Confirmed';
+                        
+                        if (isConfirmed) {
+                            actionDiv.innerHTML = '<button onclick="updateAppointmentStatus(' + appointmentId + ', \'finished\')" style="margin: 2px; padding: 6px 12px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Mark as Finished</button>';
+                        } else {
+                            actionDiv.innerHTML = '<span style="color: #6c757d; font-size: 12px;">Waiting for payment confirmation</span>';
                         }
                     } else if (newStatus === 'rejected' || newStatus === 'finished') {
                         actionDiv.innerHTML = '<span style="color: #6c757d; font-size: 12px;">No actions available</span>';

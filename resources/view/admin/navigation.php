@@ -18,6 +18,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="/admin/payments" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/payments') !== false ? 'active' : '' ?>">
+                    <i class="nav-icon">💳</i>
+                    <span>Payments</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="/admin/dashboard" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/dashboard') !== false ? 'active' : '' ?>">
                     <i class="nav-icon">📊</i>
                     <span>Dashboard</span>

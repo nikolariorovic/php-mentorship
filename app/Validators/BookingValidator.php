@@ -17,6 +17,14 @@ class BookingValidator extends BaseValidator
                     'min' => 'Invalid mentor ID'
                 ]
             ],
+            'specialization_id' => [
+                'required' => true,
+                'min' => 1,
+                'messages' => [
+                    'required' => 'Specialization ID is required',
+                    'min' => 'Invalid specialization ID'
+                ]
+                ],
             'date' => [
                 'required' => true,
                 'pattern' => [
