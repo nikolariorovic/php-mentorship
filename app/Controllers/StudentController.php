@@ -113,4 +113,22 @@ class StudentController extends Controller {
             return $this->view('student/appointments');
         }
     }
+
+    public function submitRating() {
+        try {
+            $this->appointmentWriteService->submitRating($_POST);
+            return $this->json([
+                'success' => true,
+                'message' => 'Rating submitted successfully'
+            ]);
+        } catch (InvalidArgumentException $e) {
+            return $this->json(json_decode((string) $e, true));
+        } catch (DatabaseException $e) {
+            $this->handleException($e, 'Something went wrong');
+            return $this->json(json_decode((string) $e, true));
+        } catch (\Throwable $e) {
+            $this->handleException($e, 'Error. Something went wrong');
+            return $this->json(json_decode((string) $e, true));
+        }
+    }
 }

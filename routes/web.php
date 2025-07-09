@@ -20,4 +20,5 @@ $router->group(['middleware' => [StudentMiddleware::class]], function ($router) 
     $router->post('/bookAppointment', [StudentController::class, 'bookAppointment']);
     $router->post('/processPayment', [PaymentController::class, 'processPayment']);
     $router->get('/payment-methods', [PaymentController::class, 'getAvailableMethods']);
+    $router->post('/submitRating', [StudentController::class, 'submitRating']);
 });

@@ -65,4 +65,66 @@ class AppointmentRepository extends BaseRepository implements AppointmentReposit
         $sql = "UPDATE appointments SET status = ?, payment_status = ? WHERE id = ?";
         $this->execute($sql, [$paymentStatus, $isPaid, $appointmentId]);
     }
+
+    public function submitRating(int $appointmentId, int $rating, string $comment): void
+    {
+        $sql = "UPDATE appointments SET rating = ?, comment = ? WHERE id = ?";
+        $this->execute($sql, [$rating, $comment, $appointmentId]);
+    }
+
+    public function getAppointmentsForDashboard(): array
+    {
+        $sql = "
+            SELECT
+                DATE_FORMAT(period, '%Y-%m') AS yearMonth,
+                COUNT(*) AS session_count
+            FROM
+                mentoring.appointments
+            WHERE
+                status = 'finished' AND
+                period >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 11 MONTH), '%Y-%m-01')
+                AND period < DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+            GROUP BY
+                DATE_FORMAT(period, '%Y-%m')
+            ORDER BY
+                DATE_FORMAT(period, '%Y-%m') ASC
+        ";
+        return $this->query($sql);
+    }
+
+    public function getSumOfProfit(): array
+    {
+        $sql = "SELECT SUM(price) AS total_profit FROM appointments WHERE status = 'finished'";
+        return $this->query($sql);
+    }
+
+    public function getMostActiveAndMostRatedMentors(): array
+    {
+        $sql = "
+            SELECT
+                u.id AS mentor_id,
+                u.first_name,
+                u.last_name,
+                COUNT(a.id) AS session_count,
+                AVG(a.rating) AS avg_rating
+            FROM
+                appointments a
+            JOIN
+                users u ON a.mentor_id = u.id
+            WHERE
+                a.status = 'finished'
+                AND a.rating IS NOT NULL
+                AND a.rating > 0
+                AND DATE_FORMAT(a.period, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+            GROUP BY
+                u.id, u.first_name, u.last_name
+            HAVING
+                session_count > 0
+            ORDER BY
+                session_count DESC,
+                avg_rating DESC
+            LIMIT 10
+        ";
+        return $this->query($sql);
+    }
 }

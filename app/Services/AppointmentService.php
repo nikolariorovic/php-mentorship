@@ -11,14 +11,16 @@ use App\Validators\UpdateAppointmentStatusValidator;
 use App\Exceptions\InvalidBookingDataException;
 use App\Exceptions\InvalidTimeSlotDataException;
 use App\Exceptions\InvalidArgumentException;
+use App\Validators\RatingValidator;
 
 class AppointmentService implements AppointmentReadServiceInterface, AppointmentWriteServiceInterface 
 {
-    public function __construct(AppointmentRepositoryInterface $appointmentRepository, BookingValidator $bookingValidator, TimeSlotValidator $timeSlotValidator, UpdateAppointmentStatusValidator $updateAppointmentStatusValidator) {
+    public function __construct(AppointmentRepositoryInterface $appointmentRepository, BookingValidator $bookingValidator, TimeSlotValidator $timeSlotValidator, UpdateAppointmentStatusValidator $updateAppointmentStatusValidator, RatingValidator $ratingValidator) {
         $this->appointmentRepository = $appointmentRepository;
         $this->bookingValidator = $bookingValidator;
         $this->timeSlotValidator = $timeSlotValidator;
         $this->updateAppointmentStatusValidator = $updateAppointmentStatusValidator;
+        $this->ratingValidator = $ratingValidator;
     }
 
     public function getAvailableTimeSlots(array $data): array
@@ -77,5 +79,23 @@ class AppointmentService implements AppointmentReadServiceInterface, Appointment
     public function updatePaymentStatus(int $appointmentId, string $paymentStatus, bool $isPaid = false): void
     {
         $this->appointmentRepository->updatePaymentStatus($appointmentId, $paymentStatus, $isPaid);
+    }
+
+    public function submitRating(array $data): void
+    {
+        $this->ratingValidator->validate($data);
+        $this->appointmentRepository->submitRating($data['appointment_id'], $data['rating'], $data['comment']);
+    }
+
+    public function getAppointmentsForDashboard(): array
+    {
+        $getAppointmentsForDashboard = $this->appointmentRepository->getAppointmentsForDashboard();
+        $getSumOfProfit = $this->appointmentRepository->getSumOfProfit();
+        $getMostActiveAndMostRatedMentors = $this->appointmentRepository->getMostActiveAndMostRatedMentors();
+        return [
+            'appointments' => $getAppointmentsForDashboard,
+            'profit' => $getSumOfProfit,
+            'mostActiveAndMostRatedMentors' => $getMostActiveAndMostRatedMentors
+        ];
     }
 }

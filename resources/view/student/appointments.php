@@ -158,6 +158,72 @@
             background: #218838;
         }
         
+        .rate-session-btn {
+            background: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .rate-session-btn:hover {
+            background: #e0a800;
+        }
+        
+        .actions-column {
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .actions-column .pay-now-btn,
+        .actions-column .rate-session-btn {
+            margin: 2px 0;
+            width: 100%;
+            max-width: 120px;
+        }
+        
+        .existing-rating {
+            text-align: center;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin: 2px 0;
+        }
+        
+        .rating-display {
+            margin-bottom: 5px;
+        }
+        
+        .rating-display .fas.fa-star {
+            font-size: 14px;
+            margin: 0 1px;
+        }
+        
+        .rating-display .fas.fa-star.filled {
+            color: #ffc107;
+        }
+        
+        .rating-display .fas.fa-star.empty {
+            color: #ddd;
+        }
+        
+        .rating-text-small {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        
+        .comment-preview {
+            font-size: 10px;
+            color: #888;
+            font-style: italic;
+            line-height: 1.2;
+        }
+        
         /* Payment Modal Styles */
         .payment-modal {
             display: none;
@@ -268,6 +334,133 @@
             background: #6c757d;
             cursor: not-allowed;
         }
+        
+        /* Rating Modal Styles */
+        .rating-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .rating-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .rating-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .rating-modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .rating-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .star {
+            font-size: 30px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .star:hover,
+        .star.active {
+            color: #ffc107;
+        }
+        
+        .star.selected {
+            color: #ffc107;
+        }
+        
+        .rating-text {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .comment-field {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .comment-field:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .char-count.warning {
+            color: #ffc107;
+        }
+        
+        .char-count.danger {
+            color: #dc3545;
+        }
+        
+        .rating-submit {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .rating-submit:hover {
+            background: #218838;
+        }
+        
+        .rating-submit:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -324,6 +517,7 @@
                         <th>Status</th>
                         <th>Price</th>
                         <th>Payment</th>
+                        <th>Actions</th>
                         <th>Created</th>
                     </tr>
                 </thead>
@@ -369,11 +563,39 @@
                                 <span class="payment-badge payment-paid">Paid</span>
                             <?php else: ?>
                                 <span class="payment-badge payment-pending">Pending</span>
-                                <?php if ($appointment['status'] == 'accepted'): ?>
-                                    <button class="pay-now-btn" onclick="openPaymentModal(<?php echo $appointment['id']; ?>, <?php echo $appointment['price']; ?>)">
-                                        <i class="fas fa-credit-card"></i> Pay Now
-                                    </button>
-                                <?php endif; ?>
+                            <?php endif; ?>
+                        </td>
+                        <td class="actions-column">
+                            <?php if ($appointment['status'] == 'accepted' && $appointment['payment_status'] != '1'): ?>
+                                <button class="pay-now-btn" onclick="openPaymentModal(<?php echo $appointment['id']; ?>, <?php echo $appointment['price']; ?>)">
+                                    <i class="fas fa-credit-card"></i> Pay Now
+                                </button>
+                            <?php endif; ?>
+                            
+                            <!-- Rating Button - Show only when payment is paid, appointment is finished, and no rating exists -->
+                            <?php if ($appointment['payment_status'] == '1' && $appointment['status'] == 'finished' && (empty($appointment['rating']) || $appointment['rating'] == '0')): ?>
+                                <button class="rate-session-btn" onclick="openRatingModal(<?php echo $appointment['id']; ?>, '<?php echo htmlspecialchars($appointment['mentor_name'] . ' ' . $appointment['mentor_last_name']); ?>')">
+                                    <i class="fas fa-star"></i> Rate Session
+                                </button>
+                            <?php endif; ?>
+                            
+                            <!-- Show rating if it exists -->
+                            <?php if (!empty($appointment['rating']) && $appointment['rating'] != '0'): ?>
+                                <div class="existing-rating">
+                                    <div class="rating-display">
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <i class="fas fa-star <?php echo $i <= $appointment['rating'] ? 'filled' : 'empty'; ?>"></i>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <div class="rating-text-small">
+                                        Your rating: <?php echo $appointment['rating']; ?>/5
+                                    </div>
+                                    <?php if (!empty($appointment['comment'])): ?>
+                                        <div class="comment-preview">
+                                            "<?php echo htmlspecialchars(substr($appointment['comment'], 0, 30)); ?><?php echo strlen($appointment['comment']) > 30 ? '...' : ''; ?>"
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             <?php endif; ?>
                         </td>
                         <td>
@@ -473,6 +695,59 @@
         </div>
     </div>
 
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="rating-modal">
+        <div class="rating-modal-content">
+            <div class="rating-modal-header">
+                <h2 class="rating-modal-title">
+                    <i class="fas fa-star"></i>
+                    Rate Your Session
+                </h2>
+                <button class="close-modal" onclick="closeRatingModal()">&times;</button>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 20px; color: #666;">
+                Rate your session with <strong id="mentorName">Mentor</strong>
+            </div>
+            
+            <form id="ratingForm" class="rating-form">
+                <input type="hidden" id="ratingAppointmentId" name="appointment_id">
+                
+                <div class="form-group">
+                    <label style="text-align: center; display: block; font-weight: 600; color: #333; margin-bottom: 10px;">
+                        How would you rate this session?
+                    </label>
+                    <div class="rating-stars">
+                        <i class="fas fa-star star" data-rating="1"></i>
+                        <i class="fas fa-star star" data-rating="2"></i>
+                        <i class="fas fa-star star" data-rating="3"></i>
+                        <i class="fas fa-star star" data-rating="4"></i>
+                        <i class="fas fa-star star" data-rating="5"></i>
+                    </div>
+                    <div class="rating-text" id="ratingText">Click on a star to rate</div>
+                    <input type="hidden" id="selectedRating" name="rating" value="" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comment">Comment (optional)</label>
+                    <textarea 
+                        id="comment" 
+                        name="comment" 
+                        class="comment-field" 
+                        placeholder="Share your experience with this mentor..."
+                        maxlength="255"
+                    ></textarea>
+                    <div class="char-count" id="charCount">0/255 characters</div>
+                </div>
+                
+                <button type="submit" class="rating-submit" id="ratingSubmit" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Rating
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Payment Modal Functions
         function openPaymentModal(appointmentId, amount) {
@@ -562,6 +837,182 @@
         // Cardholder name validation - only letters and spaces
         document.getElementById('cardholderName').addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+        });
+        
+        // Rating Modal Functions
+        function openRatingModal(appointmentId, mentorName) {
+            document.getElementById('ratingAppointmentId').value = appointmentId;
+            document.getElementById('mentorName').textContent = mentorName;
+            document.getElementById('ratingModal').style.display = 'block';
+            resetRatingForm();
+        }
+        
+        function closeRatingModal() {
+            document.getElementById('ratingModal').style.display = 'none';
+            resetRatingForm();
+        }
+        
+        function resetRatingForm() {
+            // Reset stars
+            document.querySelectorAll('.star').forEach(star => {
+                star.classList.remove('selected', 'active');
+            });
+            
+            // Reset form
+            document.getElementById('ratingForm').reset();
+            document.getElementById('selectedRating').value = '';
+            document.getElementById('ratingText').textContent = 'Click on a star to rate';
+            document.getElementById('charCount').textContent = '0/255 characters';
+            document.getElementById('charCount').className = 'char-count';
+            document.getElementById('ratingSubmit').disabled = true;
+        }
+        
+        // Star rating functionality
+        document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.dataset.rating);
+                document.getElementById('selectedRating').value = rating;
+                
+                // Update star display
+                document.querySelectorAll('.star').forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.add('selected');
+                    } else {
+                        s.classList.remove('selected');
+                    }
+                });
+                
+                // Update rating text
+                const ratingTexts = {
+                    1: 'Poor - Not satisfied',
+                    2: 'Fair - Could be better',
+                    3: 'Good - Satisfied',
+                    4: 'Very Good - Highly satisfied',
+                    5: 'Excellent - Outstanding experience'
+                };
+                document.getElementById('ratingText').textContent = ratingTexts[rating];
+                
+                // Enable submit button
+                document.getElementById('ratingSubmit').disabled = false;
+            });
+            
+            // Hover effects
+            star.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.dataset.rating);
+                document.querySelectorAll('.star').forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.add('active');
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseleave', function() {
+                document.querySelectorAll('.star').forEach(s => {
+                    s.classList.remove('active');
+                });
+            });
+        });
+        
+        // Comment character count
+        document.getElementById('comment').addEventListener('input', function(e) {
+            const maxLength = 255;
+            const currentLength = e.target.value.length;
+            const charCount = document.getElementById('charCount');
+            
+            charCount.textContent = `${currentLength}/${maxLength} characters`;
+            
+            // Update color based on character count
+            if (currentLength > maxLength * 0.9) {
+                charCount.className = 'char-count danger';
+            } else if (currentLength > maxLength * 0.8) {
+                charCount.className = 'char-count warning';
+            } else {
+                charCount.className = 'char-count';
+            }
+        });
+        
+        // Rating form submission via JavaScript
+        document.getElementById('ratingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const rating = document.getElementById('selectedRating').value;
+            const comment = document.getElementById('comment').value;
+            const appointmentId = document.getElementById('ratingAppointmentId').value;
+            
+            if (!rating) {
+                alert('Please select a rating before submitting.');
+                return;
+            }
+            
+            // Disable submit button to prevent double submission
+            const submitBtn = document.getElementById('ratingSubmit');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            // Send data to backend
+            const formData = new FormData();
+            formData.append('appointment_id', appointmentId);
+            formData.append('rating', rating);
+            formData.append('comment', comment);
+            
+            fetch('/submitRating', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Sačuvaj vrednosti PRE zatvaranja modala
+                    const rating = document.getElementById('selectedRating').value;
+                    const comment = document.getElementById('comment').value;
+                    const appointmentId = document.getElementById('ratingAppointmentId').value;
+
+                    closeRatingModal();
+
+                    // Hide the rating button and show the rating display
+                    const ratingButton = document.querySelector(`button[onclick*="${appointmentId}"]`);
+                    if (ratingButton) {
+                        const actionsCell = ratingButton.closest('.actions-column');
+
+                        // Prikaz koristi sačuvane vrednosti
+                        const ratingDisplay = document.createElement('div');
+                        ratingDisplay.className = 'existing-rating';
+                        ratingDisplay.innerHTML = `
+                            <div class="rating-display">
+                                ${Array.from({length: 5}, (_, i) =>
+                                    `<i class="fas fa-star ${i < rating ? 'filled' : 'empty'}"></i>`
+                                ).join('')}
+                            </div>
+                            <div class="rating-text-small">
+                                Your rating: ${rating}/5
+                            </div>
+                            ${comment ? `<div class="comment-preview">"${comment.length > 30 ? comment.substring(0, 30) + '...' : comment}"</div>` : ''}
+                        `;
+
+                        ratingButton.remove();
+                        actionsCell.appendChild(ratingDisplay);
+                    }
+                } else {
+                    alert(data.message || 'Error submitting rating. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting rating. Please try again.');
+            })
+            .finally(() => {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Rating';
+            });
+        });
+        
+        // Close rating modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const ratingModal = document.getElementById('ratingModal');
+            if (event.target === ratingModal) {
+                closeRatingModal();
+            }
         });
     </script>
 </body>

@@ -5,6 +5,7 @@ use App\Controllers\Admin\MentorAdminController;
 use App\Controllers\PaymentController;
 use App\Middleware\AdminMiddleware;
 use App\Middleware\MentorMiddleware;
+use App\Controllers\Admin\DashboardController;
 
 $router->group(['middleware' => [AdminMiddleware::class]], function ($router) {
     //users CRUD
@@ -15,6 +16,7 @@ $router->group(['middleware' => [AdminMiddleware::class]], function ($router) {
     $router->delete('/users/{id}', [UserAdminController::class, 'delete']);
     $router->get('/payments', [PaymentController::class, 'getPayments']);
     $router->post('/paymentsAccepted/{id}', [PaymentController::class, 'paymentsAccepted']);
+    $router->get('/dashboard', [DashboardController::class, 'index']);
 });
 
 $router->group(['middleware' => [MentorMiddleware::class]], function ($router) {

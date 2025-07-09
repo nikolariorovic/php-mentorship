@@ -34,6 +34,8 @@ use App\Controllers\PaymentController;
 use App\Services\PaymentService;
 use App\Services\PaymentGateway\FakePaymentGateway;
 use App\Repositories\PaymentRepository;
+use App\Validators\RatingValidator;
+use App\Controllers\Admin\DashboardController;
 
 session_start();
 
@@ -134,7 +136,8 @@ function registerDependencies(Container $container): void
             $c->resolve(AppointmentRepositoryInterface::class),
             $c->resolve(BookingValidator::class),
             $c->resolve(TimeSlotValidator::class),
-            $c->resolve(UpdateAppointmentStatusValidator::class)
+            $c->resolve(UpdateAppointmentStatusValidator::class),
+            $c->resolve(RatingValidator::class)
         );
     });
 
@@ -156,6 +159,10 @@ function registerDependencies(Container $container): void
 
     $container->bind(PaymentValidator::class, function(Container $c) {
         return new PaymentValidator();
+    });
+
+    $container->bind(RatingValidator::class, function(Container $c) {
+        return new RatingValidator();
     });
 
     // Payment gateway bindings
@@ -231,7 +238,12 @@ function registerDependencies(Container $container): void
         );
     });
 
-
+    $container->bind(DashboardController::class, function(Container $container) {
+        $appointmentReadService = $container->resolve(AppointmentReadServiceInterface::class);
+        return new DashboardController(
+            $appointmentReadService
+        );
+    });
 
     $container->bind(PaymentController::class, function(Container $c) {
         return new PaymentController(
