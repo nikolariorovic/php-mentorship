@@ -4,7 +4,8 @@ use App\Middleware\AdminPanelMiddleware;
 use App\Core\Container;
 use App\Services\Interfaces\UserReadServiceInterface;
 use App\Services\Interfaces\UserWriteServiceInterface;
-use App\Services\UserService;
+use App\Services\UserReadService;
+use App\Services\UserWriteService;
 use App\Services\Interfaces\SpecializationServiceInterface;
 use App\Validators\UserCreateValidator;
 use App\Validators\UserUpdateValidator;
@@ -16,7 +17,6 @@ use App\Controllers\Admin\UserAdminController;
 use App\Services\Interfaces\AuthServiceInterface;
 use App\Services\AuthService;
 use App\Controllers\LoginController;
-use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Controllers\StudentController;
 use App\Services\AppointmentService;
 use App\Repositories\Interfaces\AppointmentRepositoryInterface;
@@ -36,6 +36,9 @@ use App\Services\PaymentGateway\FakePaymentGateway;
 use App\Repositories\PaymentRepository;
 use App\Validators\RatingValidator;
 use App\Controllers\Admin\DashboardController;
+use App\Repositories\Interfaces\UserReadRepositoryInterface;
+use App\Repositories\Interfaces\UserWriteRepositoryInterface;
+use App\Repositories\Interfaces\UserSpecializationRepositoryInterface;
 
 session_start();
 
@@ -109,7 +112,15 @@ function registerDependencies(Container $container): void
         return new SpecializationRepository();
     });
 
-    $container->bind(UserRepositoryInterface::class, function(Container $c) {
+    $container->bind(UserReadRepositoryInterface::class, function(Container $c) {
+        return new UserRepository();
+    });
+
+    $container->bind(UserWriteRepositoryInterface::class, function(Container $c) {
+        return new UserRepository();
+    });
+
+    $container->bind(UserSpecializationRepositoryInterface::class, function(Container $c) {
         return new UserRepository();
     });
 
@@ -119,13 +130,22 @@ function registerDependencies(Container $container): void
 
     $container->bind(AuthServiceInterface::class, function(Container $c) {
         return new AuthService(
-            $c->resolve(UserRepositoryInterface::class)
+            $c->resolve(UserReadRepositoryInterface::class)
         );
     });
 
-    $container->bind(UserService::class, function(Container $c) {
-        return new UserService(
-            $c->resolve(UserRepositoryInterface::class),
+    $container->bind(UserReadService::class, function(Container $c) {
+        return new UserReadService(
+            $c->resolve(UserReadRepositoryInterface::class),
+            $c->resolve(UserSpecializationRepositoryInterface::class)
+        );
+    });
+
+    $container->bind(UserWriteService::class, function(Container $c) {
+        return new UserWriteService(
+            $c->resolve(UserWriteRepositoryInterface::class),
+            $c->resolve(UserReadRepositoryInterface::class),
+            $c->resolve(UserSpecializationRepositoryInterface::class),
             $c->resolve(UserCreateValidator::class),
             $c->resolve(UserUpdateValidator::class)
         );
@@ -189,8 +209,8 @@ function registerDependencies(Container $container): void
         return $paymentService;
     });
 
-    $container->bind(UserReadServiceInterface::class, fn(Container $c) => $c->resolve(UserService::class));
-    $container->bind(UserWriteServiceInterface::class, fn(Container $c) => $c->resolve(UserService::class));
+    $container->bind(UserReadServiceInterface::class, fn(Container $c) => $c->resolve(UserReadService::class));
+    $container->bind(UserWriteServiceInterface::class, fn(Container $c) => $c->resolve(UserWriteService::class));
     $container->bind(AppointmentReadServiceInterface::class, fn(Container $c) => $c->resolve(AppointmentService::class));
     $container->bind(AppointmentWriteServiceInterface::class, fn(Container $c) => $c->resolve(AppointmentService::class));
 

@@ -2,21 +2,21 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Repositories\Interfaces\UserRepositoryInterface;
+use App\Repositories\Interfaces\UserReadRepositoryInterface;
 use App\Services\Interfaces\AuthServiceInterface;
 use App\Exceptions\UserNotFoundException;
 use App\Factories\UserFactory;
 
 class AuthService implements AuthServiceInterface
 {
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(UserReadRepositoryInterface $userReadRepository)
     {
-        $this->userRepository = $userRepository;
+        $this->userReadRepository = $userReadRepository;
     }
     
     public function attempt(string $email, string $password): ?User
     {
-        $user = $this->userRepository->findByEmail($email);
+        $user = $this->userReadRepository->findByEmail($email);
         $user = $user ? UserFactory::create($user) : null;
         if ($user && $user->verifyPassword($password)) {
             return $user;

@@ -3,7 +3,6 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
 use App\Services\Interfaces\UserReadServiceInterface;
-use App\Services\UserService;
 use App\Repositories\UserRepository;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\InvalidUserDataException;
