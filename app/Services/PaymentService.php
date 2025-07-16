@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Services\PaymentGateway\PaymentGatewayInterface;
-use App\Services\AppointmentWriteService;
+use App\Services\Interfaces\AppointmentWriteServiceInterface;
 use App\Repositories\Interfaces\PaymentRepositoryInterface;
 use App\Validators\PaymentValidator;
 use App\Factories\PaymentFactory;
@@ -19,7 +19,7 @@ final class PaymentService implements PaymentProcessingServiceInterface, Payment
     private array $gateways = [];
 
     public function __construct(
-        private AppointmentWriteService $appointmentWriteService,
+        private AppointmentWriteServiceInterface $appointmentWriteService,
         private PaymentRepositoryInterface $paymentRepository,
         private PaymentValidator $paymentValidator
     ) {}
