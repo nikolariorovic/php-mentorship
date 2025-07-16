@@ -153,16 +153,6 @@ function registerDependencies(Container $container): void
         );
     });
 
-    // $container->bind(AppointmentService::class, function(Container $c) {
-    //     return new AppointmentService(
-    //         $c->resolve(AppointmentRepositoryInterface::class),
-    //         $c->resolve(BookingValidator::class),
-    //         $c->resolve(TimeSlotValidator::class),
-    //         $c->resolve(UpdateAppointmentStatusValidator::class),
-    //         $c->resolve(RatingValidator::class)
-    //     );
-    // });
-
     $container->bind(AppointmentReadService::class, function(Container $c) {
         return new AppointmentReadService(
             $c->resolve(AppointmentRepositoryInterface::class),
