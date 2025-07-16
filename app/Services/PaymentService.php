@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Services\PaymentGateway\PaymentGatewayInterface;
-use App\Services\AppointmentService;
-use App\Repositories\PaymentRepository;
+use App\Services\AppointmentWriteService;
+use App\Repositories\Interfaces\PaymentRepositoryInterface;
 use App\Validators\PaymentValidator;
 use App\Factories\PaymentFactory;
 use App\Exceptions\InvalidArgumentException;
@@ -16,8 +16,8 @@ final class PaymentService
     private array $gateways = [];
 
     public function __construct(
-        private AppointmentService $appointmentService,
-        private PaymentRepository $paymentRepository,
+        private AppointmentWriteService $appointmentWriteService,
+        private PaymentRepositoryInterface $paymentRepository,
         private PaymentValidator $paymentValidator
     ) {}
 
@@ -65,7 +65,7 @@ final class PaymentService
 
         $paymentId = $this->paymentRepository->savePayment($payment->toArray());
         if ($result['success']) {
-            $this->appointmentService->updatePaymentStatus($payment->getAppointmentId(), 'paid', true);
+            $this->appointmentWriteService->updatePaymentStatus($payment->getAppointmentId(), 'paid', true);
         }
         
         return $result;
