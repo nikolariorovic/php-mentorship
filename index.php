@@ -26,8 +26,6 @@ use App\Validators\BookingValidator;
 use App\Validators\TimeSlotValidator;
 use App\Validators\UpdateAppointmentStatusValidator;
 use App\Controllers\Admin\MentorAdminController;
-use App\Services\Interfaces\PaymentServiceInterface;
-use App\Services\CardPaymentService;
 use App\Validators\PaymentValidator;
 use App\Controllers\PaymentController;
 use App\Services\PaymentService;

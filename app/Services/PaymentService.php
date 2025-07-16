@@ -10,8 +10,11 @@ use App\Repositories\Interfaces\PaymentRepositoryInterface;
 use App\Validators\PaymentValidator;
 use App\Factories\PaymentFactory;
 use App\Exceptions\InvalidArgumentException;
+use App\Services\Interfaces\PaymentProcessingServiceInterface;
+use App\Services\Interfaces\PaymentGatewayManagementServiceInterface;
+use App\Services\Interfaces\PaymentHistoryServiceInterface;
 
-final class PaymentService
+final class PaymentService implements PaymentProcessingServiceInterface, PaymentGatewayManagementServiceInterface, PaymentHistoryServiceInterface
 {
     private array $gateways = [];
 
