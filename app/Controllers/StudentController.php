@@ -11,9 +11,19 @@ use App\Services\Interfaces\UserReadServiceInterface;
 use App\Services\Interfaces\AppointmentReadServiceInterface;
 use App\Services\Interfaces\AppointmentWriteServiceInterface;
 
-class StudentController extends Controller {
+class StudentController extends Controller 
+{
+    private SpecializationServiceInterface $specializationService;
+    private UserReadServiceInterface $userReadService;
+    private AppointmentReadServiceInterface $appointmentReadService;
+    private AppointmentWriteServiceInterface $appointmentWriteService;
 
-    public function __construct(SpecializationServiceInterface $specializationService, UserReadServiceInterface $userReadService, AppointmentReadServiceInterface $appointmentReadService, AppointmentWriteServiceInterface $appointmentWriteService) {
+    public function __construct(
+        SpecializationServiceInterface $specializationService, 
+        UserReadServiceInterface $userReadService, 
+        AppointmentReadServiceInterface $appointmentReadService, 
+        AppointmentWriteServiceInterface $appointmentWriteService
+    ) {
         $this->specializationService = $specializationService;
         $this->userReadService = $userReadService;
         $this->appointmentReadService = $appointmentReadService;

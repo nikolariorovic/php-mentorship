@@ -16,6 +16,10 @@ use App\Repositories\SpecializationRepository;
 
 class UserAdminController extends Controller
 {
+    private UserReadServiceInterface $userReadService;
+    private UserWriteServiceInterface $userWriteService;
+    private SpecializationServiceInterface $specializationService;
+
     public function __construct(
         UserReadServiceInterface $userReadService,
         UserWriteServiceInterface $userWriteService,

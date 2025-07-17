@@ -9,6 +9,8 @@ use App\Factories\UserFactory;
 
 class AuthService implements AuthServiceInterface
 {
+    private UserReadRepositoryInterface $userReadRepository;
+    
     public function __construct(UserReadRepositoryInterface $userReadRepository)
     {
         $this->userReadRepository = $userReadRepository;
@@ -18,7 +20,7 @@ class AuthService implements AuthServiceInterface
     {
         $user = $this->userReadRepository->findByEmail($email);
         $user = $user ? UserFactory::create($user) : null;
-        if ($user && $user->verifyPassword($password)) {
+        if ($user && $user->verifyPassword($password)) {   
             return $user;
         }
         throw new UserNotFoundException();

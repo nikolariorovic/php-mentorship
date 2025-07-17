@@ -43,7 +43,16 @@ final class PaymentRepository extends BaseRepository implements PaymentRepositor
     
     public function getPayments(int $page): array
     {
-        return $this->query('SELECT * FROM payments WHERE status = "pending" ORDER BY created_at DESC LIMIT 10 OFFSET ?', [($page - 1) * 10]);
+        $sql = "SELECT 
+                    p.*,
+                    CONCAT(u.first_name, ' ', u.last_name) as student_name
+                FROM payments p
+                LEFT JOIN users u ON p.student_id = u.id
+                WHERE p.status = 'pending' 
+                ORDER BY p.created_at DESC 
+                LIMIT 10 OFFSET ?";
+        
+        return $this->query($sql, [($page - 1) * 10]);
     }
 
     public function paymentsAccepted(int $id): void

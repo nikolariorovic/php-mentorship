@@ -29,18 +29,6 @@
                     <span>Dashboard</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="/admin/settings" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/settings') !== false ? 'active' : '' ?>">
-                    <i class="nav-icon">⚙️</i>
-                    <span>Settings</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/admin/reports" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/admin/reports') !== false ? 'active' : '' ?>">
-                    <i class="nav-icon">📈</i>
-                    <span>Reports</span>
-                </a>
-            </li>
             <li class="nav-item nav-item-logout">
                 <a href="/logout" class="nav-link logout-link">
                     <i class="nav-icon">🚪</i>

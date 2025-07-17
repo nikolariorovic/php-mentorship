@@ -39,6 +39,8 @@ use App\Repositories\Interfaces\UserWriteRepositoryInterface;
 use App\Repositories\Interfaces\UserSpecializationRepositoryInterface;
 use App\Services\AppointmentReadService;
 use App\Services\AppointmentWriteService;
+use App\Services\Interfaces\SessionServiceInterface;
+use App\Services\SessionService;
 
 session_start();
 
@@ -128,6 +130,10 @@ function registerDependencies(Container $container): void
         return new AppointmentRepository();
     });
 
+    $container->bind(SessionServiceInterface::class, function(Container $c) {
+        return new SessionService();
+    });
+
     $container->bind(AuthServiceInterface::class, function(Container $c) {
         return new AuthService(
             $c->resolve(UserReadRepositoryInterface::class)
@@ -154,7 +160,8 @@ function registerDependencies(Container $container): void
     $container->bind(AppointmentReadService::class, function(Container $c) {
         return new AppointmentReadService(
             $c->resolve(AppointmentRepositoryInterface::class),
-            $c->resolve(TimeSlotValidator::class)
+            $c->resolve(TimeSlotValidator::class),
+            $c->resolve(SessionServiceInterface::class)
         );
     });
 
@@ -163,7 +170,8 @@ function registerDependencies(Container $container): void
             $c->resolve(AppointmentRepositoryInterface::class),
             $c->resolve(BookingValidator::class),
             $c->resolve(UpdateAppointmentStatusValidator::class),
-            $c->resolve(RatingValidator::class)
+            $c->resolve(RatingValidator::class),
+            $c->resolve(SessionServiceInterface::class)
         );
     });
 
@@ -211,7 +219,8 @@ function registerDependencies(Container $container): void
         $paymentService = new PaymentService(
             $c->resolve(AppointmentWriteServiceInterface::class),
             $c->resolve(PaymentRepositoryInterface::class),
-            $c->resolve(PaymentValidator::class)
+            $c->resolve(PaymentValidator::class),
+            $c->resolve(SessionServiceInterface::class)
         );
         
         // Register fake payment gateway

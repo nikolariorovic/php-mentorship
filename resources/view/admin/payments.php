@@ -56,7 +56,7 @@
                                 <td><?php echo htmlspecialchars($payment['student_name'] ?? 'N/A'); ?></td>
                                 <td>$<?php 
                                     try {
-                                        echo number_format(is_numeric($payment['amount']) ? (float)$payment['amount'] : 0, 2);
+                                        echo number_format(is_numeric($payment['price']) ? (float)$payment['price'] : 0, 2);
                                     } catch (Exception $e) {
                                         echo '0.00';
                                     }

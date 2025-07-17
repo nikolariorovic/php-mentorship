@@ -13,16 +13,27 @@ use App\Exceptions\InvalidArgumentException;
 use App\Services\Interfaces\PaymentProcessingServiceInterface;
 use App\Services\Interfaces\PaymentGatewayManagementServiceInterface;
 use App\Services\Interfaces\PaymentHistoryServiceInterface;
+use App\Services\Interfaces\SessionServiceInterface;
 
 final class PaymentService implements PaymentProcessingServiceInterface, PaymentGatewayManagementServiceInterface, PaymentHistoryServiceInterface
 {
     private array $gateways = [];
+    private AppointmentWriteServiceInterface $appointmentWriteService;
+    private PaymentRepositoryInterface $paymentRepository;
+    private PaymentValidator $paymentValidator;
+    private SessionServiceInterface $sessionService;
 
     public function __construct(
-        private AppointmentWriteServiceInterface $appointmentWriteService,
-        private PaymentRepositoryInterface $paymentRepository,
-        private PaymentValidator $paymentValidator
-    ) {}
+        AppointmentWriteServiceInterface $appointmentWriteService,
+        PaymentRepositoryInterface $paymentRepository,
+        PaymentValidator $paymentValidator,
+        SessionServiceInterface $sessionService
+    ) {
+        $this->appointmentWriteService = $appointmentWriteService;
+        $this->paymentRepository = $paymentRepository;
+        $this->paymentValidator = $paymentValidator;
+        $this->sessionService = $sessionService;
+    }
 
     public function registerGateway(PaymentGatewayInterface $gateway): void
     {
@@ -31,7 +42,8 @@ final class PaymentService implements PaymentProcessingServiceInterface, Payment
 
     public function processPayment(string $gatewayName = null, array $data = []): array
     {
-        if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id']) || $_SESSION['user']['role'] !== 'student') {
+        $user = $this->sessionService->getSession();
+        if (!$user || !$user['id'] || $user['role'] !== 'student') {
             throw new InvalidArgumentException('User not authenticated. Please login again.');
         }
 
@@ -58,7 +70,7 @@ final class PaymentService implements PaymentProcessingServiceInterface, Payment
         
         $payment = PaymentFactory::create([
             'appointment_id' => (int) $data['appointment_id'],
-            'student_id' => (int) $_SESSION['user']['id'],
+            'student_id' => (int) $user['id'],
             'price' => $data['price'] ?? 0,
             'transaction_id' => $result['transaction_id'] ?? null,
             'method' => $gateway->getName(),

@@ -6,20 +6,34 @@ use App\Validators\BookingValidator;
 use App\Validators\UpdateAppointmentStatusValidator;
 use App\Validators\RatingValidator;
 use App\Services\Interfaces\AppointmentWriteServiceInterface;
+use App\Services\Interfaces\SessionServiceInterface;
 
 class AppointmentWriteService implements AppointmentWriteServiceInterface
 {
-    public function __construct(AppointmentRepositoryInterface $appointmentRepository, BookingValidator $bookingValidator, UpdateAppointmentStatusValidator $updateAppointmentStatusValidator, RatingValidator $ratingValidator)
-    {
+    private AppointmentRepositoryInterface $appointmentRepository;
+    private BookingValidator $bookingValidator;
+    private UpdateAppointmentStatusValidator $updateAppointmentStatusValidator;
+    private RatingValidator $ratingValidator;
+    private SessionServiceInterface $sessionService;
+
+    public function __construct(
+        AppointmentRepositoryInterface $appointmentRepository, 
+        BookingValidator $bookingValidator, 
+        UpdateAppointmentStatusValidator $updateAppointmentStatusValidator, 
+        RatingValidator $ratingValidator, 
+        SessionServiceInterface $sessionService
+    ) {
         $this->appointmentRepository = $appointmentRepository;
         $this->bookingValidator = $bookingValidator;
         $this->updateAppointmentStatusValidator = $updateAppointmentStatusValidator;
         $this->ratingValidator = $ratingValidator;
+        $this->sessionService = $sessionService;
     }
 
     public function bookAppointment(array $data): void
     {
-        if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
+        $user = $this->sessionService->getSession();
+        if (!$user || !$user['id']) {
             throw new \InvalidArgumentException('User not authenticated. Please login again.');
         }
 
@@ -27,7 +41,7 @@ class AppointmentWriteService implements AppointmentWriteServiceInterface
         
         $dateTime = strpos($data['time'], ' ') !== false ? $data['time'] : $data['date'] . ' ' . $data['time'];
         
-        $this->appointmentRepository->bookAppointment($data['mentor_id'], $dateTime, $_SESSION['user']['id'], $data['price'], $data['specialization_id']);
+        $this->appointmentRepository->bookAppointment($data['mentor_id'], $dateTime, $user['id'], $data['price'], $data['specialization_id']);
     }
 
     public function updateAppointmentStatus(array $data): void

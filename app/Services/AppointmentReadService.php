@@ -6,13 +6,22 @@ use App\Validators\TimeSlotValidator;
 use App\Helpers\AppointmentHelper;
 use App\Services\Interfaces\AppointmentReadServiceInterface;
 use InvalidArgumentException;
+use App\Services\Interfaces\SessionServiceInterface;
 
 class AppointmentReadService implements AppointmentReadServiceInterface
 {
-    public function __construct(AppointmentRepositoryInterface $appointmentRepository, TimeSlotValidator $timeSlotValidator)
-    {
+    private AppointmentRepositoryInterface $appointmentRepository;
+    private TimeSlotValidator $timeSlotValidator;
+    private SessionServiceInterface $sessionService;
+
+    public function __construct(
+        AppointmentRepositoryInterface $appointmentRepository, 
+        TimeSlotValidator $timeSlotValidator, 
+        SessionServiceInterface $sessionService
+    ) {
         $this->appointmentRepository = $appointmentRepository;
         $this->timeSlotValidator = $timeSlotValidator;
+        $this->sessionService = $sessionService;
     }
 
     public function getAvailableTimeSlots(array $data): array
@@ -42,11 +51,12 @@ class AppointmentReadService implements AppointmentReadServiceInterface
 
     public function getPaginatedAppointments(int $page): array
     {
-        if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
+        $user = $this->sessionService->getSession();
+        if (!$user || !$user['id']) {
             throw new InvalidArgumentException('User not authenticated. Please login again.');
         }
      
-        return $this->appointmentRepository->getPaginatedAppointments($_SESSION['user']['id'], $_SESSION['user']['role'], $page);
+        return $this->appointmentRepository->getPaginatedAppointments($user['id'], $user['role'], $page);
     }
 
     public function getAppointmentsForDashboard(): array

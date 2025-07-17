@@ -12,8 +12,13 @@ use App\Exceptions\UserNotFoundException;
 
 class UserReadService implements UserReadServiceInterface
 {
-    public function __construct(UserReadRepositoryInterface $userReadRepository, UserSpecializationRepositoryInterface $userSpecializationRepository)
-    {
+    private UserReadRepositoryInterface $userReadRepository;
+    private UserSpecializationRepositoryInterface $userSpecializationRepository;
+
+    public function __construct(
+        UserReadRepositoryInterface $userReadRepository, 
+        UserSpecializationRepositoryInterface $userSpecializationRepository
+    ) {
         $this->userReadRepository = $userReadRepository;
         $this->userSpecializationRepository = $userSpecializationRepository;
     }

@@ -8,9 +8,12 @@ use App\Exceptions\DatabaseException;
 
 class PaymentController extends Controller 
 {
-    public function __construct(
-        private PaymentService $paymentService
-    ) {}
+    private PaymentService $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
 
     public function processPayment()
     {

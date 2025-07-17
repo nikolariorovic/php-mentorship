@@ -7,6 +7,8 @@ use App\Exceptions\UserNotFoundException;
 
 class LoginController extends Controller 
 {
+    private AuthServiceInterface $authService;
+    
     public function __construct(AuthServiceInterface $authService) {
         $this->authService = $authService;
     }
