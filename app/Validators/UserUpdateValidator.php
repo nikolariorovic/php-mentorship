@@ -2,6 +2,8 @@
 
 namespace App\Validators;
 
+use App\Exceptions\InvalidUserDataException;
+
 class UserUpdateValidator extends BaseValidator
 {
     protected function setRules(): void
@@ -36,7 +38,7 @@ class UserUpdateValidator extends BaseValidator
                 ]
             ],
             'biography' => [
-                'required' => true,
+                'required' => false,
                 'min_length' => 10,
                 'messages' => [
                     'min_length' => 'Biography must be at least 10 characters long'
@@ -50,5 +52,12 @@ class UserUpdateValidator extends BaseValidator
                 ]
             ]
         ];
+    }
+
+    protected function throwValidationException(): void
+    {
+        $exception = new InvalidUserDataException();
+        $exception->setErrors($this->errors);
+        throw $exception;
     }
 } 

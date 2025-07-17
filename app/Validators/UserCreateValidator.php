@@ -2,6 +2,8 @@
 
 namespace App\Validators;
 
+use App\Exceptions\InvalidUserDataException;
+
 class UserCreateValidator extends BaseValidator
 {
     protected function setRules(): void
@@ -74,5 +76,12 @@ class UserCreateValidator extends BaseValidator
                 ]
             ]
         ];
+    }
+
+    protected function throwValidationException(): void
+    {
+        $exception = new InvalidUserDataException();
+        $exception->setErrors($this->errors);
+        throw $exception;
     }
 } 

@@ -137,7 +137,7 @@
                         </select>
                         <small class="form-help">Hold Ctrl (or Cmd on Mac) to select multiple specializations</small>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="biographyGroup" style="display: none;">
                         <label for="biography">Biography</label>
                         <textarea id="biography" name="biography" rows="3"></textarea>
                     </div>

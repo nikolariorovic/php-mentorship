@@ -2,7 +2,6 @@
 
 namespace App\Validators;
 
-use App\Exceptions\InvalidUserDataException;
 use App\Validators\Interfaces\ValidatorInterface;
 
 abstract class BaseValidator implements ValidatorInterface
@@ -102,15 +101,5 @@ abstract class BaseValidator implements ValidatorInterface
         }
     }
 
-    protected function throwValidationException(): void
-    {
-        $exceptionClass = InvalidUserDataException::class;
-        $exception = new $exceptionClass();
-        
-        if (method_exists($exception, 'setErrors')) {
-            $exception->setErrors($this->errors);
-        }
-        
-        throw $exception;
-    }
+    abstract protected function throwValidationException(): void;
 } 

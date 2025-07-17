@@ -15,6 +15,8 @@ function closeCreateUserModal() {
     document.getElementById('pricePerSessionGroup').style.display = 'none';
     // Hide specializations field
     document.getElementById('specializationsGroup').style.display = 'none';
+    // Hide biography field
+    document.getElementById('biographyGroup').style.display = 'none';
 }
 
 // Edit Modal Functions
@@ -34,6 +36,11 @@ function closeEditUserModal() {
     const editSpecializationsGroup = document.getElementById('editSpecializationsGroup');
     if (editSpecializationsGroup) {
         editSpecializationsGroup.style.display = 'none';
+    }
+    // Hide biography field
+    const editBiographyGroup = document.getElementById('editBiographyGroup');
+    if (editBiographyGroup) {
+        editBiographyGroup.style.display = 'none';
     }
 }
 
@@ -80,6 +87,16 @@ function editUser(userId, firstName, lastName, email, role, biography, price, sp
                     option.selected = false;
                 });
             }
+        }
+    }
+    
+    // Handle biography field visibility for mentor role
+    const editBiographyGroup = document.getElementById('editBiographyGroup');
+    if (editBiographyGroup) {
+        if (role === 'mentor') {
+            editBiographyGroup.style.display = 'block';
+        } else {
+            editBiographyGroup.style.display = 'none';
         }
     }
     
@@ -143,6 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const editPriceInput = document.getElementById('edit_price_per_session');
     const specializationsGroup = document.getElementById('specializationsGroup');
     const editSpecializationsGroup = document.getElementById('editSpecializationsGroup');
+    const biographyGroup = document.getElementById('biographyGroup');
+    const editBiographyGroup = document.getElementById('editBiographyGroup');
 
     // Handle role changes for create form
     if (roleSelect) {
@@ -151,11 +170,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 priceGroup.style.display = 'block';
                 priceInput.required = true;
                 specializationsGroup.style.display = 'block';
+                biographyGroup.style.display = 'block';
             } else {
                 priceGroup.style.display = 'none';
                 priceInput.required = false;
                 priceInput.value = ''; // Clear the price when role is not mentor
                 specializationsGroup.style.display = 'none';
+                biographyGroup.style.display = 'none';
             }
         });
     }
@@ -169,12 +190,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (editSpecializationsGroup) {
                     editSpecializationsGroup.style.display = 'block';
                 }
+                if (editBiographyGroup) {
+                    editBiographyGroup.style.display = 'block';
+                }
             } else {
                 editPriceGroup.style.display = 'none';
                 editPriceInput.required = false;
                 editPriceInput.value = ''; // Clear the price when role is not mentor
                 if (editSpecializationsGroup) {
                     editSpecializationsGroup.style.display = 'none';
+                }
+                if (editBiographyGroup) {
+                    editBiographyGroup.style.display = 'none';
                 }
             }
         });

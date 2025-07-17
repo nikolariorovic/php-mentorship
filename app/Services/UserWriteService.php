@@ -43,7 +43,7 @@ class UserWriteService implements UserWriteServiceInterface
             $user->getLastName(),
             $user->getEmail(),
             $user->getPassword(),
-            $user->getBiography(),
+            $user->getBiography() == '' ? null : $user->getBiography(),
             $user->getPrice() ?? 0.00,
             $user->getRole(),
             date('Y-m-d H:i:s')
@@ -97,7 +97,7 @@ class UserWriteService implements UserWriteServiceInterface
                 $user->getFirstName(),
                 $user->getLastName(),
                 $user->getRole(),
-                $user->getBiography(),
+                $user->getBiography() == '' ? null : $user->getBiography(),
                 $user->getPrice(),
                 date('Y-m-d H:i:s'),
                 $user->getId()
